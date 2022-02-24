@@ -1,0 +1,38 @@
+{
+  "name": "equivalent-exchange",
+  "version": "1.0.0",
+  "description": "Transmute one JavaScript string into another by way of mutating its AST. Powered by [babel](https://babeljs.io/) and [recast](https://www.npmjs.com/package/recast).",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "test": "vitest",
+    "build": "tsc && cp dist/index.d.ts api/"
+  },
+  "keywords": [
+    "ast",
+    "transform",
+    "codemod",
+    "babel",
+    "recast",
+    "transmute",
+    "transmutation"
+  ],
+  "author": "Lily Scott <me@suchipi.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/suchipi/glomp.git"
+  },
+  "devDependencies": {
+    "typescript": "^4.5.5",
+    "vitest": "^0.5.4"
+  },
+  "dependencies": {
+    "@babel/core": "^7.17.5",
+    "@babel/parser": "^7.17.3",
+    "@babel/traverse": "^7.17.3",
+    "@babel/types": "^7.17.0",
+    "@types/babel__core": "^7.1.18",
+    "recast": "^0.20.5"
+  }
+}
