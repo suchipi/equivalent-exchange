@@ -149,7 +149,10 @@ export interface Transmute {
  *
  * The options parameter works the same as the options parameter for `transmute`.
  */
-export declare function codeToAst(code: string, options: TransmuteOptions): AST;
+export declare function codeToAst(
+  code: string,
+  options?: TransmuteOptions
+): AST;
 /**
  * Converts an AST back into a code string.
  *
@@ -159,6 +162,6 @@ export declare function codeToAst(code: string, options: TransmuteOptions): AST;
  */
 export declare function astToCode(
   ast: AST,
-  options: TransmuteOptions
+  options?: TransmuteOptions
 ): TransmuteResult;
 export declare const transmute: Transmute;

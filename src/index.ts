@@ -167,7 +167,7 @@ export interface Transmute {
  *
  * The options parameter works the same as the options parameter for `transmute`.
  */
-export function codeToAst(code: string, options: TransmuteOptions): AST {
+export function codeToAst(code: string, options: TransmuteOptions = {}): AST {
   const typeSyntax = options?.parseOptions?.typeSyntax || "typescript";
   const decoratorSyntax = options?.parseOptions?.decoratorSyntax || "legacy";
   const pipelineSyntax = options?.parseOptions?.pipelineSyntax || "hack";
@@ -256,7 +256,7 @@ export function codeToAst(code: string, options: TransmuteOptions): AST {
  */
 export function astToCode(
   ast: AST,
-  options: TransmuteOptions
+  options: TransmuteOptions = {}
 ): TransmuteResult {
   const recastResult = recast.print(ast, {
     sourceMapName: options.sourceMapFileName || "sourcemap.json",
