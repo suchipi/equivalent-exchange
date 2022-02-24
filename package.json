@@ -21,7 +21,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/suchipi/glomp.git"
+    "url": "https://github.com/suchipi/equivalent-exchange.git"
   },
   "devDependencies": {
     "typescript": "^4.5.5",
