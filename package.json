@@ -6,7 +6,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "test": "vitest",
-    "build": "tsc && cp dist/index.d.ts api/"
+    "build": "tsc && cp dist/index.d.ts api/ && prettier --write api/index.d.ts"
   },
   "keywords": [
     "ast",
@@ -24,6 +24,7 @@
     "url": "https://github.com/suchipi/equivalent-exchange.git"
   },
   "devDependencies": {
+    "prettier": "^2.5.1",
     "typescript": "^4.5.5",
     "vitest": "^0.5.4"
   },
