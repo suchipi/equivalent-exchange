@@ -1,6 +1,6 @@
 {
   "name": "equivalent-exchange",
-  "version": "1.2.1",
+  "version": "1.3.0",
   "description": "Transmute one JavaScript string into another by way of mutating its AST. Powered by [babel](https://babeljs.io/) and [recast](https://www.npmjs.com/package/recast).",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
