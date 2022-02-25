@@ -107,3 +107,41 @@ test("received AST uses babel *Literal types instead of ESTree Literal type", as
     transform(ast);
   });
 });
+
+test("with jsx syntax", async () => {
+  const code = `
+  interface Props {
+    greet: string;
+  }
+
+  const Component: React.FC<Props> = ({greet = "hello!"}) => {
+    return <div>{greet}</div>
+  }`;
+
+  const transform = (ast: AST) => {
+    traverse(ast, {
+      StringLiteral(path) {
+        const { node } = path;
+        if (node.value === "hello!") {
+          path.replaceWith(types.stringLiteral("goodbye!"));
+        }
+      },
+    });
+  };
+
+  expect(
+    transmute(code, transform),
+  ).toMatchInlineSnapshot(`
+    {
+      "code": "
+      interface Props {
+        greet: string;
+      }
+    
+      const Component: React.FC<Props> = ({greet = \\"goodbye!\\"}) => {
+        return <div>{greet}</div>
+      }",
+      "map": null,
+    }
+  `);
+});
