@@ -186,6 +186,7 @@ export function codeToAst(code: string, options: TransmuteOptions = {}): AST {
           allowReturnOutsideFunction: true,
           allowSuperOutsideMethod: true,
           allowUndeclaredExports: true,
+          tokens: true,
           plugins: [
             ...(typeSyntax === "flow"
               ? (["flow", "flowComments"] as const)
