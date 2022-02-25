@@ -1,10 +1,10 @@
 import traverse from "@babel/traverse";
-import * as types from "@babel/types";
+import * as types from "./types-ns";
 export {
-  /** Re-export of @babel/types. */
-  types,
-  /** Re-export of @babel/traverse. */
+  /** Re-export of @babel/traverse's default export. */
   traverse,
+  /** Contains the named exports of both @babel/types and @babel/traverse. */
+  types,
 };
 /**
  * The node type that `transmute` will give to you as the root AST node.

@@ -6,7 +6,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "test": "vitest",
-    "build": "tsc && cp dist/index.d.ts api/ && prettier --write api/index.d.ts"
+    "build": "tsc && cp dist/*.d.ts api/ && prettier --write api/index.d.ts"
   },
   "keywords": [
     "ast",
