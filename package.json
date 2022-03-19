@@ -29,8 +29,8 @@
     "vitest": "^0.5.4"
   },
   "dependencies": {
-    "@babel/core": "^7.17.5",
-    "@babel/parser": "^7.17.3",
+    "@babel/core": "^7.17.8",
+    "@babel/parser": "^7.17.8",
     "@babel/traverse": "^7.17.3",
     "@babel/types": "^7.17.0",
     "@types/babel__core": "^7.1.18",
