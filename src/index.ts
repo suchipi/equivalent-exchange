@@ -269,6 +269,38 @@ export function astToCode(
   };
 }
 
+type Clonable =
+  | {}
+  | number
+  | string
+  | null
+  | undefined
+  | boolean
+  | Array<Clonable>;
+
+export function clone<T extends Clonable>(input: T): T {
+  if (Array.isArray(input)) {
+    const copy = new Array(input.length);
+    for (let i = 0; i < input.length; i++) {
+      copy[i] = input[i];
+    }
+    // @ts-ignore could be instantiated with different subtype
+    return copy;
+  }
+
+  if (typeof input !== "object" || input == null) {
+    return input;
+  }
+
+  const copy = Object.create(Object.getPrototypeOf(input));
+  for (const key of Object.keys(input)) {
+    copy[key] = clone(input[key]);
+  }
+
+  // @ts-ignore could be instantiated with different subtype
+  return copy;
+}
+
 // @ts-ignore typescript overload refinement leaves a lot to be desired
 export const transmute: Transmute = (
   ...args: Array<any>

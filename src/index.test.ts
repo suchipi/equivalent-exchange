@@ -1,5 +1,13 @@
 import { test, expect } from "vitest";
-import { AST, transmute, traverse, types } from "./index";
+import {
+  AST,
+  transmute,
+  traverse,
+  types,
+  clone,
+  codeToAst,
+  astToCode,
+} from "./index";
 
 test("basic usage", async () => {
   const code = `console.log("hello!");`;
@@ -129,9 +137,7 @@ test("with jsx syntax", async () => {
     });
   };
 
-  expect(
-    transmute(code, transform),
-  ).toMatchInlineSnapshot(`
+  expect(transmute(code, transform)).toMatchInlineSnapshot(`
     {
       "code": "
       interface Props {
@@ -144,4 +150,63 @@ test("with jsx syntax", async () => {
       "map": null,
     }
   `);
+});
+
+test("clone helper", async () => {
+  const ast = codeToAst("console.log(   'hi there!' );");
+  const otherAst = clone(ast);
+
+  expect(otherAst).not.toBe(ast);
+  expect(otherAst).toBeInstanceOf(ast.constructor);
+  expect(types.isFile(ast)).toBe(true);
+  expect(types.isFile(otherAst)).toBe(true);
+
+  expect(astToCode(ast).code).toMatchInlineSnapshot(
+    "\"console.log(   'hi there!' );\""
+  );
+  expect(astToCode(otherAst).code).toMatchInlineSnapshot(
+    "\"console.log(   'hi there!' );\""
+  );
+});
+
+test("duplicate child", async () => {
+  const ast = codeToAst("console.log( hi ) ;");
+
+  ast.program.body.push(ast.program.body[0]);
+
+  expect(astToCode(ast).code).toMatchInlineSnapshot(
+    '"console.log( hi ) ;console.log( hi ) ;"'
+  );
+});
+
+test("cloned duplicate child", async () => {
+  const ast = codeToAst("console.log( hi ) ;");
+
+  ast.program.body.push(clone(ast.program.body[0]));
+
+  expect(astToCode(ast).code).toMatchInlineSnapshot(
+    '"console.log( hi ) ;console.log(hi);"'
+  );
+});
+
+// is this a recast bug? I don't like this, but I don't know where
+// the right place to fix it is. Documenting the behavior here for now.
+test("dangerous duplicate child", async () => {
+  const ast = codeToAst(" [ 1] ");
+
+  ast.program.body.push(ast.program.body[0]);
+
+  expect(astToCode(ast).code).toMatchInlineSnapshot('" [ 1][ 1] "');
+});
+
+// is this a recast bug? I don't like this, but I don't know where
+// the right place to fix it is. Documenting the behavior here for now.
+test("dangerous cloned duplicate child", async () => {
+  const ast = codeToAst(" [ 1] ");
+
+  ast.program.body.push(clone(ast.program.body[0]));
+
+  expect(astToCode(ast).code).toMatchInlineSnapshot(
+    '" [ 1][1]; "'
+  );
 });
