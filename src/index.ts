@@ -1,5 +1,6 @@
 import traverse from "@babel/traverse";
 import * as babelParser from "@babel/parser";
+import template from "@babel/template";
 import * as types from "./types-ns";
 import * as recast from "recast";
 
@@ -8,6 +9,8 @@ export {
   traverse,
   /** Contains the named exports of both @babel/types and @babel/traverse. */
   types,
+  /** Re-export of @babel/template's default export. */
+  template,
 };
 
 /**
