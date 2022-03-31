@@ -164,4 +164,13 @@ export declare function astToCode(
   ast: AST,
   options?: TransmuteOptions
 ): TransmuteResult;
+declare type Clonable =
+  | {}
+  | number
+  | string
+  | null
+  | undefined
+  | boolean
+  | Array<Clonable>;
+export declare function clone<T extends Clonable>(input: T): T;
 export declare const transmute: Transmute;
