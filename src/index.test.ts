@@ -7,6 +7,7 @@ import {
   clone,
   codeToAst,
   astToCode,
+  hasShape,
 } from "./index";
 
 test("basic usage", async () => {
@@ -206,7 +207,81 @@ test("dangerous cloned duplicate child", async () => {
 
   ast.program.body.push(clone(ast.program.body[0]));
 
-  expect(astToCode(ast).code).toMatchInlineSnapshot(
-    '" [ 1][1]; "'
-  );
+  expect(astToCode(ast).code).toMatchInlineSnapshot('" [ 1][1]; "');
+});
+
+test("hasShape", async () => {
+  {
+    const input = { type: "Bla", one: [1] };
+    const shape = { type: "Bla" };
+    expect(hasShape(input, shape)).toBe(true);
+  }
+
+  {
+    const input = { type: "Bla", one: [1] };
+    const shape = { type: "Blah" };
+    expect(hasShape(input, shape)).toBe(false);
+  }
+
+  {
+    const input = [1, 2, 3];
+    const shape = [1, 2];
+    expect(hasShape(input, shape)).toBe(true);
+  }
+
+  {
+    const input = [1, 2, 3];
+    const shape = [2, 2];
+    expect(hasShape(input, shape)).toBe(false);
+  }
+
+  {
+    const input = [1, 2, 3];
+    const shape = [1, 2, 3, 4];
+    expect(hasShape(input, shape)).toBe(false);
+  }
+
+  {
+    const input = 4;
+    const shape = 4;
+    expect(hasShape(input, shape)).toBe(true);
+  }
+
+  {
+    const input = "hi";
+    const shape = "hiiii";
+    expect(hasShape(input, shape)).toBe(false);
+  }
+
+  {
+    const input = "hi";
+    const shape = "hi";
+    expect(hasShape(input, shape)).toBe(true);
+  }
+
+  {
+    const input = codeToAst("hi;");
+    const shape = { type: "File", program: { type: "Program" } };
+    expect(hasShape(input, shape)).toBe(true);
+  }
+
+  {
+    const input = codeToAst("hi;");
+    const shape = { type: "File", program: { type: "Not a Program" } };
+    expect(hasShape(input, shape)).toBe(false);
+  }
+
+  {
+    const input = codeToAst("hi;") as types.Node;
+
+    const check = (_: types.File) => {};
+
+    // @ts-expect-error input is not types.File
+    check(input);
+
+    if (hasShape(input, { type: "File" } as const)) {
+      // There should not be a typescript error on the next line
+      check(input);
+    }
+  }
 });

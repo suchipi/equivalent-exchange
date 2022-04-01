@@ -304,6 +304,19 @@ export function clone<T extends Clonable>(input: T): T {
   return copy;
 }
 
+export function hasShape<Input, Shape>(
+  input: Input,
+  shape: Shape
+): input is Input & Shape {
+  if (typeof input !== "object" || input == null) {
+    // @ts-ignore no overlap
+    return input === shape;
+  }
+
+  // Used for both Array and Object
+  return Object.keys(shape).every((key) => hasShape(input[key], shape[key]));
+}
+
 // @ts-ignore typescript overload refinement leaves a lot to be desired
 export const transmute: Transmute = (
   ...args: Array<any>
