@@ -39,7 +39,7 @@ test("basic usage", async () => {
 test("with source map", async () => {
   const code = `console.log("hello!");`;
 
-  const transform = (ast: AST) => {
+  const transform = (ast: types.Node) => {
     traverse(ast, {
       StringLiteral(path) {
         const { node } = path;
@@ -284,4 +284,87 @@ test("hasShape", async () => {
       check(input);
     }
   }
+});
+
+test("astToCode with non-file (simple)", () => {
+  const ast = codeToAst("hi;");
+  const node = (ast as any).program.body[0].expression;
+  const result = astToCode(node);
+  expect(result).toMatchInlineSnapshot(`
+    {
+      "code": "hi",
+      "map": null,
+    }
+  `);
+});
+
+test("astToCode with non-file (complicated)", () => {
+  const ast = codeToAst(
+    "                console.log(  hi, 2 + some `one ${\noutThere}\n              \t \t`  )  ;\n\tvar theBite = 87;"
+  ) as types.File;
+
+  const callExpression: types.CallExpression = (ast.program.body[0] as any)
+    .expression;
+
+  const hi: types.Identifier = callExpression.arguments[0] as any;
+
+  const binaryExpression: types.BinaryExpression = callExpression
+    .arguments[1] as any;
+
+  const variableDeclaration: types.VariableDeclaration = ast.program
+    .body[1] as any;
+
+  const theBite: types.Identifier = variableDeclaration.declarations[0]
+    .init as any;
+
+  const result = {
+    callExpression: astToCode(callExpression),
+    hi: astToCode(hi),
+    binaryExpression: astToCode(binaryExpression),
+    variableDeclaration: astToCode(variableDeclaration),
+    theBite: astToCode(theBite),
+  };
+
+  expect(result).toMatchInlineSnapshot(`
+    {
+      "binaryExpression": {
+        "code": "2 + some \`one \${
+    outThere}
+        \`",
+        "map": null,
+      },
+      "callExpression": {
+        "code": "console.log(  hi, 2 + some \`one \${
+    outThere}
+        \`  )",
+        "map": null,
+      },
+      "hi": {
+        "code": "hi",
+        "map": null,
+      },
+      "theBite": {
+        "code": "87",
+        "map": null,
+      },
+      "variableDeclaration": {
+        "code": "var theBite = 87;",
+        "map": null,
+      },
+    }
+  `);
+});
+
+test("codeToAst as expression", () => {
+  const node = codeToAst("hi", { expression: true });
+  expect(node.type).toBe("Identifier");
+  expect((node as any).name).toBe("hi");
+});
+
+test("codeToAst as expression but it's a statement", () => {
+  expect(() => {
+    codeToAst("hi;", { expression: true });
+  }).toThrowErrorMatchingInlineSnapshot(
+    '"Unexpected token, expected \\",\\" (1:3)"'
+  );
 });

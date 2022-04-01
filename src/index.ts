@@ -79,6 +79,15 @@ export type TransmuteOptions = {
      */
     hackPipelineTopicToken?: "^^" | "@@" | "^" | "%" | "#";
   };
+
+  /**
+   * Whether to parse the code as an expression instead of a whole program.
+   *
+   * When this is true, the returned AST type will vary.
+   *
+   * Defaults to false.
+   */
+  expression?: boolean;
 };
 
 /**
@@ -131,7 +140,7 @@ export interface Transmute {
   (
     code: string,
     options: TransmuteOptions,
-    transform: (ast: AST) => Promise<void>
+    transform: (ast: types.Node) => Promise<void>
   ): Promise<TransmuteResult>;
 
   /**
@@ -159,8 +168,13 @@ export interface Transmute {
   (
     code: string,
     options: TransmuteOptions,
-    transform: (ast: AST) => void
+    transform: (ast: types.Node) => void
   ): TransmuteResult;
+}
+
+interface CodeToAst {
+  (code: string): AST;
+  (code: string, options: TransmuteOptions): types.Node;
 }
 
 /**
@@ -170,14 +184,19 @@ export interface Transmute {
  *
  * The options parameter works the same as the options parameter for `transmute`.
  */
-export function codeToAst(code: string, options: TransmuteOptions = {}): AST {
+export const codeToAst: CodeToAst = (
+  code: string,
+  options: TransmuteOptions = {}
+): any => {
   const typeSyntax = options?.parseOptions?.typeSyntax || "typescript";
   const decoratorSyntax = options?.parseOptions?.decoratorSyntax || "legacy";
   const pipelineSyntax = options?.parseOptions?.pipelineSyntax || "hack";
   const hackPipelineTopicToken =
     options?.parseOptions?.hackPipelineTopicToken || "%";
 
-  const ast: AST = recast.parse(code, {
+  const codeToParse = options.expression ? `(${code})` : code;
+
+  const ast: AST = recast.parse(codeToParse, {
     sourceFileName: options.fileName,
     inputSourceMap: options.inputSourceMap,
     parser: {
@@ -248,8 +267,18 @@ export function codeToAst(code: string, options: TransmuteOptions = {}): AST {
     },
   });
 
+  if (options.expression) {
+    if (!types.isExpressionStatement(ast.program.body[0])) {
+      throw new Error(
+        "Attempted to parse code as an expression, but the resulting AST's first statement wasn't an ExpressionStatement."
+      );
+    }
+
+    return ast.program.body[0].expression;
+  }
+
   return ast;
-}
+};
 
 /**
  * Converts an AST back into a code string.
@@ -259,7 +288,7 @@ export function codeToAst(code: string, options: TransmuteOptions = {}): AST {
  * The options parameter works the same as the options parameter for `transmute`.
  */
 export function astToCode(
-  ast: AST,
+  ast: types.Node,
   options: TransmuteOptions = {}
 ): TransmuteResult {
   const recastResult = recast.print(ast, {
@@ -323,7 +352,7 @@ export const transmute: Transmute = (
 ): TransmuteResult | Promise<TransmuteResult> => {
   const code: string = args[0];
   let options: TransmuteOptions = {};
-  let transform: (ast: AST) => void | Promise<void>;
+  let transform: (ast: types.Node) => void | Promise<void>;
   if (typeof args[1] === "function") {
     transform = args[1];
   } else {
