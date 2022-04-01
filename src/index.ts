@@ -83,7 +83,7 @@ export type TransmuteOptions = {
   /**
    * Whether to parse the code as an expression instead of a whole program.
    *
-   * When this is true, the returned AST type will vary.
+   * When this is true, the resulting AST type will vary.
    *
    * Defaults to false.
    */

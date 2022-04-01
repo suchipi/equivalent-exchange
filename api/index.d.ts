@@ -68,6 +68,14 @@ export declare type TransmuteOptions = {
      */
     hackPipelineTopicToken?: "^^" | "@@" | "^" | "%" | "#";
   };
+  /**
+   * Whether to parse the code as an expression instead of a whole program.
+   *
+   * When this is true, the resulting AST type will vary.
+   *
+   * Defaults to false.
+   */
+  expression?: boolean;
 };
 /**
  * The result of transmuting some code. If the options you passed into
@@ -116,7 +124,7 @@ export interface Transmute {
   (
     code: string,
     options: TransmuteOptions,
-    transform: (ast: AST) => Promise<void>
+    transform: (ast: types.Node) => Promise<void>
   ): Promise<TransmuteResult>;
   /**
    * Parses `code` into an AST, then passes that to `transform`, which
@@ -142,8 +150,12 @@ export interface Transmute {
   (
     code: string,
     options: TransmuteOptions,
-    transform: (ast: AST) => void
+    transform: (ast: types.Node) => void
   ): TransmuteResult;
+}
+interface CodeToAst {
+  (code: string): AST;
+  (code: string, options: TransmuteOptions): types.Node;
 }
 /**
  * Parses a JavaScript/TypeScript code string into an AST.
@@ -152,10 +164,7 @@ export interface Transmute {
  *
  * The options parameter works the same as the options parameter for `transmute`.
  */
-export declare function codeToAst(
-  code: string,
-  options?: TransmuteOptions
-): AST;
+export declare const codeToAst: CodeToAst;
 /**
  * Converts an AST back into a code string.
  *
@@ -164,7 +173,7 @@ export declare function codeToAst(
  * The options parameter works the same as the options parameter for `transmute`.
  */
 export declare function astToCode(
-  ast: AST,
+  ast: types.Node,
   options?: TransmuteOptions
 ): TransmuteResult;
 declare type Clonable =
@@ -176,4 +185,8 @@ declare type Clonable =
   | boolean
   | Array<Clonable>;
 export declare function clone<T extends Clonable>(input: T): T;
+export declare function hasShape<Input, Shape>(
+  input: Input,
+  shape: Shape
+): input is Input & Shape;
 export declare const transmute: Transmute;
