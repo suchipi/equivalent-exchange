@@ -1,5 +1,6 @@
 import traverse from "@babel/traverse";
 import * as babelParser from "@babel/parser";
+import * as babelGenerator from "@babel/generator";
 import template from "@babel/template";
 import * as types from "./types-ns";
 import * as recast from "recast";
@@ -83,11 +84,29 @@ export type TransmuteOptions = {
   /**
    * Whether to parse the code as an expression instead of a whole program.
    *
-   * When this is true, the resulting AST type will vary.
+   * When this is true, the type of the resulting AST node will vary.
    *
    * Defaults to false.
    */
   expression?: boolean;
+
+  /**
+   * Options that control how `transmute` will convert ASTs into code strings.
+   */
+  printOptions?: {
+    /**
+     * Which method to use to convert an AST back into code.
+     *
+     * Defaults to "recast.print", which attempts to preserve source formatting
+     * of unchanged nodes. If this doesn't matter to you, you can instead use
+     * "recast.prettyPrint", which reprints all nodes with generic formatting.
+     *
+     * "@babel/generator" will use the npm package "@babel/generator" to make
+     * the code instead. If you encounter bugs with recast's printer, babel
+     * generator may work better.
+     */
+    printMethod?: "recast.print" | "recast.prettyPrint" | "@babel/generator";
+  };
 };
 
 /**
@@ -291,14 +310,45 @@ export function astToCode(
   ast: types.Node,
   options: TransmuteOptions = {}
 ): TransmuteResult {
-  const recastResult = recast.print(ast, {
-    sourceMapName: options.sourceMapFileName || "sourcemap.json",
-  });
-  return {
-    code: recastResult.code,
-    map:
-      options.fileName && options.sourceMapFileName ? recastResult.map : null,
-  };
+  const printMethod = options.printOptions?.printMethod || "recast.print";
+
+  switch (printMethod) {
+    case "recast.print":
+    case "recast.prettyPrint": {
+      const printFunction =
+        printMethod === "recast.print" ? recast.print : recast.prettyPrint;
+      const recastResult = printFunction.call(recast, ast, {
+        sourceMapName: options.sourceMapFileName || "sourcemap.json",
+      });
+
+      return {
+        code: recastResult.code,
+        map:
+          options.fileName && options.sourceMapFileName
+            ? recastResult.map
+            : null,
+      };
+    }
+
+    case "@babel/generator": {
+      const babelResult = babelGenerator.default(ast, {
+        sourceFileName: options.fileName,
+        sourceMaps: Boolean(options.sourceMapFileName),
+      });
+
+      return {
+        code: babelResult.code,
+        map:
+          options.fileName && options.sourceMapFileName
+            ? babelResult.map
+            : null,
+      };
+    }
+
+    default: {
+      throw new Error(`Invalid print method: ${printMethod}`);
+    }
+  }
 }
 
 type Clonable =

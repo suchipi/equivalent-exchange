@@ -1,4 +1,4 @@
-import { test, expect } from "vitest";
+import { describe, test, expect } from "vitest";
 import {
   AST,
   transmute,
@@ -369,26 +369,30 @@ test("codeToAst as expression but it's a statement", () => {
   );
 });
 
-test("TS namespace curlies problem", () => {
-  const ast = codeToAst(`
+describe("TS namespace curlies bug", () => {
+  // this seems to be a bug in recast. I wish this wasn't the behavior, but I'll at least document it here for now
+  test("BUG: removing a child from a TS namespace body removes its curly braces", () => {
+    const input = `
     export namespace Hi {
       export const There = "There";
     }
 
     Hi.There;
-  `);
+  `;
 
-  traverse(ast, {
-    VariableDeclaration(path) {
-      path.remove();
-    },
-  });
+    const result = transmute(input, (ast) => {
+      traverse(ast, {
+        VariableDeclaration(path) {
+          path.remove();
+        },
+      });
+    });
 
-  const newCode = astToCode(ast).code;
+    const newCode = result.code;
 
-  // Removes the curly braces from the namespace's body :\
-  // This is definitely a bug
-  expect(newCode.split("\n")).toMatchInlineSnapshot(`
+    // Removes the curly braces from the namespace's body :\
+    // This is definitely a bug
+    expect(newCode.split("\n")).toMatchInlineSnapshot(`
     [
       "",
       "    export namespace Hi ",
@@ -398,10 +402,93 @@ test("TS namespace curlies problem", () => {
     ]
   `);
 
-  // Not valid code anymore because the curlies were removed
-  expect(() => {
-    codeToAst(newCode);
-  }).toThrowErrorMatchingInlineSnapshot(
-    '"Unexpected token, expected \\"{\\" (4:4)"'
-  );
+    // Not valid code anymore because the curlies were removed :(
+    expect(() => {
+      codeToAst(newCode);
+    }).toThrowErrorMatchingInlineSnapshot(
+      '"Unexpected token, expected \\"{\\" (4:4)"'
+    );
+  });
+
+  test("workaround #1", () => {
+    const input = `
+    export namespace Hi {
+      export const There = "There";
+    }
+
+    Hi.There;
+  `;
+
+    const result = transmute(
+      input,
+      {
+        printOptions: {
+          // If we ignore source formatting and re-print everything
+          // manually, then the curlies don't get removed.
+          printMethod: "recast.prettyPrint",
+        },
+      },
+      (ast) => {
+        traverse(ast, {
+          VariableDeclaration(path) {
+            path.remove();
+          },
+        });
+      }
+    );
+
+    const newCode = result.code;
+
+    expect(newCode.split("\n")).toMatchInlineSnapshot(`
+    [
+      "export namespace Hi {}",
+      "Hi.There;",
+    ]
+  `);
+
+    expect(() => {
+      codeToAst(newCode);
+    }).not.toThrowError();
+  });
+
+  test("workaround #2", () => {
+    const input = `
+    export namespace Hi {
+      export const There = "There";
+    }
+
+    Hi.There;
+  `;
+
+    const result = transmute(
+      input,
+      {
+        printOptions: {
+          // Alternatively, we can reprint the code using babel generator
+          // instead of recast:
+          printMethod: "@babel/generator",
+        },
+      },
+      (ast) => {
+        traverse(ast, {
+          VariableDeclaration(path) {
+            path.remove();
+          },
+        });
+      }
+    );
+
+    const newCode = result.code;
+
+    expect(newCode.split("\n")).toMatchInlineSnapshot(`
+    [
+      "export namespace Hi {}",
+      "Hi.There;",
+    ]
+  `);
+
+    expect(() => {
+      codeToAst(newCode);
+    }).not.toThrowError();
+  });
 });

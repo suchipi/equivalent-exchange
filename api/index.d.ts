@@ -71,11 +71,28 @@ export declare type TransmuteOptions = {
   /**
    * Whether to parse the code as an expression instead of a whole program.
    *
-   * When this is true, the resulting AST type will vary.
+   * When this is true, the type of the resulting AST node will vary.
    *
    * Defaults to false.
    */
   expression?: boolean;
+  /**
+   * Options that control how `transmute` will convert ASTs into code strings.
+   */
+  printOptions?: {
+    /**
+     * Which method to use to convert an AST back into code.
+     *
+     * Defaults to "recast.print", which attempts to preserve source formatting
+     * of unchanged nodes. If this doesn't matter to you, you can instead use
+     * "recast.prettyPrint", which reprints all nodes with generic formatting.
+     *
+     * "@babel/generator" will use the npm package "@babel/generator" to make
+     * the code instead. If you encounter bugs with recast's printer, babel
+     * generator may work better.
+     */
+    printMethod?: "recast.print" | "recast.prettyPrint" | "@babel/generator";
+  };
 };
 /**
  * The result of transmuting some code. If the options you passed into
