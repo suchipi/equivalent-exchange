@@ -368,3 +368,40 @@ test("codeToAst as expression but it's a statement", () => {
     '"Unexpected token, expected \\",\\" (1:3)"'
   );
 });
+
+test("TS namespace curlies problem", () => {
+  const ast = codeToAst(`
+    export namespace Hi {
+      export const There = "There";
+    }
+
+    Hi.There;
+  `);
+
+  traverse(ast, {
+    VariableDeclaration(path) {
+      path.remove();
+    },
+  });
+
+  const newCode = astToCode(ast).code;
+
+  // Removes the curly braces from the namespace's body :\
+  // This is definitely a bug
+  expect(newCode.split("\n")).toMatchInlineSnapshot(`
+    [
+      "",
+      "    export namespace Hi ",
+      "",
+      "    Hi.There;",
+      "  ",
+    ]
+  `);
+
+  // Not valid code anymore because the curlies were removed
+  expect(() => {
+    codeToAst(newCode);
+  }).toThrowErrorMatchingInlineSnapshot(
+    '"Unexpected token, expected \\"{\\" (4:4)"'
+  );
+});
