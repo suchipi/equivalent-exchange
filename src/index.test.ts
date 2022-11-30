@@ -8,6 +8,8 @@ import {
   codeToAst,
   astToCode,
   hasShape,
+  parse,
+  print,
 } from "./index";
 
 test("basic usage", async () => {
@@ -491,4 +493,52 @@ describe("TS namespace curlies bug", () => {
       codeToAst(newCode);
     }).not.toThrowError();
   });
+});
+
+test("parse function (basic)", () => {
+  const node = parse("hi");
+  expect(node.type).toBe("File");
+  expect(node.program.body[0].expression.type).toBe("Identifier");
+  expect(node.program.body[0].expression.name).toBe("hi");
+});
+
+test("parse function (jsx)", () => {
+  const node = parse("<a />");
+  expect(node.type).toBe("File");
+  expect(node.program.body[0].expression.type).toBe("JSXElement");
+});
+
+test("parse function (typescript)", () => {
+  const node = parse("const a = (something: string): string => something;");
+  expect(node.type).toBe("File");
+  expect(node.program.body[0].type).toBe("VariableDeclaration");
+  const decl = node.program.body[0];
+  expect(decl.declarations[0].init.type).toBe("ArrowFunctionExpression");
+  const arrowFnExpr = decl.declarations[0].init;
+  expect(arrowFnExpr.returnType.typeAnnotation.type).toBe("TSStringKeyword");
+});
+
+test("parse function (flow)", () => {
+  const node = parse("const a = (something: string): string => something;", { typeSyntax: "flow" });
+  expect(node.type).toBe("File");
+  expect(node.program.body[0].type).toBe("VariableDeclaration");
+  const decl = node.program.body[0];
+  expect(decl.declarations[0].init.type).toBe("ArrowFunctionExpression");
+  const arrowFnExpr = decl.declarations[0].init;
+  expect(arrowFnExpr.returnType.typeAnnotation.type).toBe("StringTypeAnnotation");
+});
+
+test("print function (basic)", () => {
+  const node = types.identifier("hi");
+  const result = print(node);
+  expect(result.code).toBe("hi");
+});
+
+test("print function (different methods)", () => {
+  const node = types.identifier("hi");
+
+  for (const printMethod of ["@babel/generator", "recast.print", "recast.prettyPrint"] as const) {
+    const result = print(node, { printMethod });
+    expect(result.code).toBe("hi");
+  }
 });
