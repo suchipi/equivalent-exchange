@@ -528,6 +528,29 @@ test("parse function (flow)", () => {
   expect(arrowFnExpr.returnType.typeAnnotation.type).toBe("StringTypeAnnotation");
 });
 
+test("parse function (JSX implicitly enabled)", () => {
+  expect(() => {
+    parse("const a = <string>45;");
+  }).toThrowErrorMatchingInlineSnapshot('"Unterminated JSX contents. (1:18)"');
+});
+
+test("parse function (JSX explicitly enabled)", () => {
+  expect(() => {
+    parse("const a = <string>45;", { jsxEnabled: true });
+  }).toThrowErrorMatchingInlineSnapshot('"Unterminated JSX contents. (1:18)"');
+});
+
+test("parse function (JSX explicitly disabled)", () => {
+  const node = parse("const a = <string>45;", { jsxEnabled: false });
+  expect(node.type).toBe("File");
+  expect(node.program.body[0].type).toBe("VariableDeclaration");
+  const decl = node.program.body[0];
+  expect(decl.declarations[0].init.type).toBe("TSTypeAssertion");
+  const init = decl.declarations[0].init;
+  expect(init.typeAnnotation.type).toBe("TSStringKeyword");
+  expect(init.expression.type).toBe("NumericLiteral");
+});
+
 test("print function (basic)", () => {
   const node = types.identifier("hi");
   const result = print(node);
