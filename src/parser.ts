@@ -9,6 +9,7 @@ export const parse = (source: string, options: ParseOptions = {}): any => {
   const decoratorSyntax = options.decoratorSyntax || "legacy";
   const pipelineSyntax = options.pipelineSyntax || "hack";
   const hackPipelineTopicToken = options.hackPipelineTopicToken || "%";
+  const jsxEnabled = options.jsxEnabled !== false;
 
   return babelParser.parse(source, {
     sourceFilename: options.fileName,
@@ -23,7 +24,7 @@ export const parse = (source: string, options: ParseOptions = {}): any => {
         ? (["flow", "flowComments"] as const)
         : (["typescript"] as const)),
 
-      "jsx",
+      ...(jsxEnabled ? (["jsx"] as const) : ([] as const)),
 
       "asyncDoExpressions",
       "asyncGenerators",

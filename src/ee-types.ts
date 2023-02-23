@@ -40,6 +40,16 @@ export type ParseOptions = {
   hackPipelineTopicToken?: "^^" | "@@" | "^" | "%" | "#";
 
   /**
+   * Whether to parse matching < and > in the code as JSX. It is generally
+   * okay to have this on, but if your code is not JSX, and you do some nested
+   * numeric comparisons, or use < and > for type casting, you should disable
+   * this.
+   *
+   * Defaults to `true`.
+   */
+  jsxEnabled?: boolean;
+
+  /**
    * The name of the file whose code you are transmuting.
    *
    * If passed, parse errors thrown by `transmute` will be clearer,
