@@ -17,11 +17,11 @@
     "transmute",
     "transmutation"
   ],
-  "author": "Lily Scott <me@suchipi.com>",
+  "author": "Lily Skye <me@suchipi.com>",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/suchipi/equivalent-exchange.git"
+    "url": "git+https://github.com/suchipi/equivalent-exchange.git"
   },
   "devDependencies": {
     "prettier": "^3.0.3",
