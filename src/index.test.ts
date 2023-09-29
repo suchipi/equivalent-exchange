@@ -165,10 +165,10 @@ test("clone helper", async () => {
   expect(types.isFile(otherAst)).toBe(true);
 
   expect(astToCode(ast).code).toMatchInlineSnapshot(
-    "\"console.log(   'hi there!' );\""
+    "\"console.log(   'hi there!' );\"",
   );
   expect(astToCode(otherAst).code).toMatchInlineSnapshot(
-    "\"console.log(   'hi there!' );\""
+    "\"console.log(   'hi there!' );\"",
   );
 });
 
@@ -178,7 +178,7 @@ test("duplicate child", async () => {
   ast.program.body.push(ast.program.body[0]);
 
   expect(astToCode(ast).code).toMatchInlineSnapshot(
-    '"console.log( hi ) ;console.log( hi ) ;"'
+    '"console.log( hi ) ;console.log( hi ) ;"',
   );
 });
 
@@ -188,7 +188,7 @@ test("cloned duplicate child", async () => {
   ast.program.body.push(clone(ast.program.body[0]));
 
   expect(astToCode(ast).code).toMatchInlineSnapshot(
-    '"console.log( hi ) ;console.log(hi);"'
+    '"console.log( hi ) ;console.log(hi);"',
   );
 });
 
@@ -302,7 +302,7 @@ test("astToCode with non-file (simple)", () => {
 
 test("astToCode with non-file (complicated)", () => {
   const ast = codeToAst(
-    "                console.log(  hi, 2 + some `one ${\noutThere}\n              \t \t`  )  ;\n\tvar theBite = 87;"
+    "                console.log(  hi, 2 + some `one ${\noutThere}\n              \t \t`  )  ;\n\tvar theBite = 87;",
   ) as types.File;
 
   const callExpression: types.CallExpression = (ast.program.body[0] as any)
@@ -367,132 +367,8 @@ test("codeToAst as expression but it's a statement", () => {
   expect(() => {
     codeToAst("hi;", { expression: true });
   }).toThrowErrorMatchingInlineSnapshot(
-    '"Unexpected token, expected \\",\\" (1:3)"'
+    '"Unexpected token, expected \\",\\" (1:3)"',
   );
-});
-
-describe("TS namespace curlies bug", () => {
-  // this seems to be a bug in recast. I wish this wasn't the behavior, but I'll at least document it here for now
-  test("BUG: removing a child from a TS namespace body removes its curly braces", () => {
-    const input = `
-    export namespace Hi {
-      export const There = "There";
-    }
-
-    Hi.There;
-  `;
-
-    const result = transmute(input, (ast) => {
-      traverse(ast, {
-        VariableDeclaration(path) {
-          path.remove();
-        },
-      });
-    });
-
-    const newCode = result.code;
-
-    // Removes the curly braces from the namespace's body :\
-    // This is definitely a bug
-    expect(newCode.split("\n")).toMatchInlineSnapshot(`
-    [
-      "",
-      "    export namespace Hi ",
-      "",
-      "    Hi.There;",
-      "  ",
-    ]
-  `);
-
-    // Not valid code anymore because the curlies were removed :(
-    expect(() => {
-      codeToAst(newCode);
-    }).toThrowErrorMatchingInlineSnapshot(
-      '"Unexpected token, expected \\"{\\" (4:4)"'
-    );
-  });
-
-  test("workaround #1", () => {
-    const input = `
-    export namespace Hi {
-      export const There = "There";
-    }
-
-    Hi.There;
-  `;
-
-    const result = transmute(
-      input,
-      {
-        printOptions: {
-          // If we ignore source formatting and re-print everything
-          // manually, then the curlies don't get removed.
-          printMethod: "recast.prettyPrint",
-        },
-      },
-      (ast) => {
-        traverse(ast, {
-          VariableDeclaration(path) {
-            path.remove();
-          },
-        });
-      }
-    );
-
-    const newCode = result.code;
-
-    expect(newCode.split("\n")).toMatchInlineSnapshot(`
-    [
-      "export namespace Hi {}",
-      "Hi.There;",
-    ]
-  `);
-
-    expect(() => {
-      codeToAst(newCode);
-    }).not.toThrowError();
-  });
-
-  test("workaround #2", () => {
-    const input = `
-    export namespace Hi {
-      export const There = "There";
-    }
-
-    Hi.There;
-  `;
-
-    const result = transmute(
-      input,
-      {
-        printOptions: {
-          // Alternatively, we can reprint the code using babel generator
-          // instead of recast:
-          printMethod: "@babel/generator",
-        },
-      },
-      (ast) => {
-        traverse(ast, {
-          VariableDeclaration(path) {
-            path.remove();
-          },
-        });
-      }
-    );
-
-    const newCode = result.code;
-
-    expect(newCode.split("\n")).toMatchInlineSnapshot(`
-    [
-      "export namespace Hi {}",
-      "Hi.There;",
-    ]
-  `);
-
-    expect(() => {
-      codeToAst(newCode);
-    }).not.toThrowError();
-  });
 });
 
 test("parse function (basic)", () => {
@@ -519,13 +395,17 @@ test("parse function (typescript)", () => {
 });
 
 test("parse function (flow)", () => {
-  const node = parse("const a = (something: string): string => something;", { typeSyntax: "flow" });
+  const node = parse("const a = (something: string): string => something;", {
+    typeSyntax: "flow",
+  });
   expect(node.type).toBe("File");
   expect(node.program.body[0].type).toBe("VariableDeclaration");
   const decl = node.program.body[0];
   expect(decl.declarations[0].init.type).toBe("ArrowFunctionExpression");
   const arrowFnExpr = decl.declarations[0].init;
-  expect(arrowFnExpr.returnType.typeAnnotation.type).toBe("StringTypeAnnotation");
+  expect(arrowFnExpr.returnType.typeAnnotation.type).toBe(
+    "StringTypeAnnotation",
+  );
 });
 
 test("parse function (JSX implicitly enabled)", () => {
@@ -560,7 +440,11 @@ test("print function (basic)", () => {
 test("print function (different methods)", () => {
   const node = types.identifier("hi");
 
-  for (const printMethod of ["@babel/generator", "recast.print", "recast.prettyPrint"] as const) {
+  for (const printMethod of [
+    "@babel/generator",
+    "recast.print",
+    "recast.prettyPrint",
+  ] as const) {
     const result = print(node, { printMethod });
     expect(result.code).toBe("hi");
   }

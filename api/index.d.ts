@@ -30,19 +30,19 @@ interface CodeToAst {
     code: string,
     options: TransmuteOptions & {
       expression: true;
-    }
+    },
   ): types.Node;
   (
     code: string,
     options: TransmuteOptions & {
       expression: false;
-    }
+    },
   ): AST;
   (
     code: string,
     options: TransmuteOptions & {
       expression: boolean;
-    }
+    },
   ): types.Node;
   (code: string, options: TransmuteOptions): AST;
 }
@@ -63,9 +63,9 @@ export declare const codeToAst: CodeToAst;
  */
 export declare function astToCode(
   ast: types.Node,
-  options?: TransmuteOptions
+  options?: TransmuteOptions,
 ): TransmuteResult;
-declare type Clonable =
+type Clonable =
   | {}
   | number
   | string
@@ -76,7 +76,7 @@ declare type Clonable =
 export declare function clone<T extends Clonable>(input: T): T;
 export declare function hasShape<Input, Shape>(
   input: Input,
-  shape: Shape
+  shape: Shape,
 ): input is Input & Shape;
 /**
  * The interface of the `transmute` function, which has 4 different call signatures.
@@ -92,7 +92,7 @@ export interface Transmute {
    */
   (
     code: string,
-    transform: (ast: AST) => Promise<void>
+    transform: (ast: AST) => Promise<void>,
   ): Promise<TransmuteResult>;
   /**
    * Parses `code` into an AST, then passes that to `transform`, which
@@ -109,7 +109,7 @@ export interface Transmute {
   (
     code: string,
     options: TransmuteOptions,
-    transform: (ast: types.Node) => Promise<void>
+    transform: (ast: types.Node) => Promise<void>,
   ): Promise<TransmuteResult>;
   /**
    * Parses `code` into an AST, then passes that to `transform`, which
@@ -135,7 +135,7 @@ export interface Transmute {
   (
     code: string,
     options: TransmuteOptions,
-    transform: (ast: types.Node) => void
+    transform: (ast: types.Node) => void,
   ): TransmuteResult;
 }
 export declare const transmute: Transmute;

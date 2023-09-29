@@ -9,5 +9,5 @@ import { PrintOptions, TransmuteResult } from "./ee-types";
  */
 export declare function print(
   ast: types.Node,
-  options?: PrintOptions
+  options?: PrintOptions,
 ): TransmuteResult;

@@ -4,11 +4,11 @@ import * as types from "./types-ns";
  *
  * It's an alias to babel's `File` node type.
  */
-export declare type AST = types.File;
+export type AST = types.File;
 /**
  * Options that control how `transmute` will convert code strings into ASTs.
  */
-export declare type ParseOptions = {
+export type ParseOptions = {
   /**
    * Which type-checker syntax to use.
    *
@@ -58,7 +58,7 @@ export declare type ParseOptions = {
 /**
  * Options that control how `transmute` will convert ASTs into code strings.
  */
-export declare type PrintOptions = {
+export type PrintOptions = {
   /**
    * Which method to use to convert an AST back into code.
    *
@@ -100,7 +100,7 @@ export declare type PrintOptions = {
 /**
  * Options that affect the behavior of `transmute`, `codeToAst`, and `astToCode`.
  */
-export declare type TransmuteOptions = {
+export type TransmuteOptions = {
   /**
    * The name of the file whose code you are transmuting.
    *
@@ -143,7 +143,7 @@ export declare type TransmuteOptions = {
  * `transmute` had sourcemap-related stuff set, then the `map` property
  * will be set. Otherwise, it'll be null.
  */
-export declare type TransmuteResult = {
+export type TransmuteResult = {
   /**
    * The transformed code string.
    */
