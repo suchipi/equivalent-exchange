@@ -32,7 +32,7 @@ test("basic usage", async () => {
   expect(result1).toEqual(result2);
   expect(result1).toMatchInlineSnapshot(`
     {
-      "code": "console.log(\\"goodbye!\\");",
+      "code": "console.log("goodbye!");",
       "map": null,
     }
   `);
@@ -62,7 +62,7 @@ test("with source map", async () => {
   expect(result1).toEqual(result2);
   expect(result1).toMatchInlineSnapshot(`
     {
-      "code": "console.log(\\"goodbye!\\");",
+      "code": "console.log("goodbye!");",
       "map": {
         "file": "src/index.js.map",
         "mappings": "AAAA,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,WAAS,CAAC",
@@ -71,7 +71,7 @@ test("with source map", async () => {
           "src/index.js",
         ],
         "sourcesContent": [
-          "console.log(\\"hello!\\");",
+          "console.log("hello!");",
         ],
         "version": 3,
       },
@@ -146,8 +146,8 @@ test("with jsx syntax", async () => {
       interface Props {
         greet: string;
       }
-    
-      const Component: React.FC<Props> = ({greet = \\"goodbye!\\"}) => {
+
+      const Component: React.FC<Props> = ({greet = "goodbye!"}) => {
         return <div>{greet}</div>
       }",
       "map": null,
@@ -367,7 +367,7 @@ test("codeToAst as expression but it's a statement", () => {
   expect(() => {
     codeToAst("hi;", { expression: true });
   }).toThrowErrorMatchingInlineSnapshot(
-    '"Unexpected token, expected \\",\\" (1:3)"',
+    `[SyntaxError: Unexpected token, expected "," (1:3)]`,
   );
 });
 
@@ -411,13 +411,17 @@ test("parse function (flow)", () => {
 test("parse function (JSX implicitly enabled)", () => {
   expect(() => {
     parse("const a = <string>45;");
-  }).toThrowErrorMatchingInlineSnapshot('"Unterminated JSX contents. (1:18)"');
+  }).toThrowErrorMatchingInlineSnapshot(
+    `[SyntaxError: Unterminated JSX contents. (1:18)]`,
+  );
 });
 
 test("parse function (JSX explicitly enabled)", () => {
   expect(() => {
     parse("const a = <string>45;", { jsxEnabled: true });
-  }).toThrowErrorMatchingInlineSnapshot('"Unterminated JSX contents. (1:18)"');
+  }).toThrowErrorMatchingInlineSnapshot(
+    `[SyntaxError: Unterminated JSX contents. (1:18)]`,
+  );
 });
 
 test("parse function (JSX explicitly disabled)", () => {
@@ -542,6 +546,7 @@ test("print function (source maps, @babel/generator)", () => {
       "code": "console.pog(3);",
       "map": {
         "file": undefined,
+        "ignoreList": [],
         "mappings": "AAAAA,OAAO,CAAAC,GAAI,CAAC,CAAC,CAAC",
         "names": [
           "console",

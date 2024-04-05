@@ -36,7 +36,7 @@ interface CodeToAst {
   (code: string, options: TransmuteOptions & { expression: false }): AST;
   (
     code: string,
-    options: TransmuteOptions & { expression: boolean }
+    options: TransmuteOptions & { expression: boolean },
   ): types.Node;
   (code: string, options: TransmuteOptions): AST;
 }
@@ -50,7 +50,7 @@ interface CodeToAst {
  */
 export const codeToAst: CodeToAst = (
   code: string,
-  options: TransmuteOptions = {}
+  options: TransmuteOptions = {},
 ): any => {
   const codeToParse = options.expression ? `(${code})` : code;
 
@@ -70,7 +70,7 @@ export const codeToAst: CodeToAst = (
   if (options.expression) {
     if (!types.isExpressionStatement(ast.program.body[0])) {
       throw new Error(
-        "Attempted to parse code as an expression, but the resulting AST's first statement wasn't an ExpressionStatement."
+        "Attempted to parse code as an expression, but the resulting AST's first statement wasn't an ExpressionStatement.",
       );
     }
 
@@ -89,7 +89,7 @@ export const codeToAst: CodeToAst = (
  */
 export function astToCode(
   ast: types.Node,
-  options: TransmuteOptions = {}
+  options: TransmuteOptions = {},
 ): TransmuteResult {
   return printer.print(ast, {
     ...(options.printOptions || null),
@@ -132,7 +132,7 @@ export function clone<T extends Clonable>(input: T): T {
 
 export function hasShape<Input, Shape>(
   input: Input,
-  shape: Shape
+  shape: Shape,
 ): input is Input & Shape {
   if (typeof input !== "object" || input == null) {
     // @ts-ignore no overlap
@@ -141,7 +141,7 @@ export function hasShape<Input, Shape>(
 
   // Used for both Array and Object
   return Object.keys(shape as any).every((key) =>
-    hasShape(input[key], shape[key])
+    hasShape(input[key], shape[key]),
   );
 }
 
@@ -159,7 +159,7 @@ export interface Transmute {
    */
   (
     code: string,
-    transform: (ast: AST) => Promise<void>
+    transform: (ast: AST) => Promise<void>,
   ): Promise<TransmuteResult>;
 
   /**
@@ -177,7 +177,7 @@ export interface Transmute {
   (
     code: string,
     options: TransmuteOptions,
-    transform: (ast: types.Node) => Promise<void>
+    transform: (ast: types.Node) => Promise<void>,
   ): Promise<TransmuteResult>;
 
   /**
@@ -205,7 +205,7 @@ export interface Transmute {
   (
     code: string,
     options: TransmuteOptions,
-    transform: (ast: types.Node) => void
+    transform: (ast: types.Node) => void,
   ): TransmuteResult;
 }
 
