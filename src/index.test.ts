@@ -449,3 +449,113 @@ test("print function (different methods)", () => {
     expect(result.code).toBe("hi");
   }
 });
+
+test("print function (source maps, recast.print)", () => {
+  const fileName = "myfile.js";
+  const sourceMapFileName = "myfile.js.map";
+
+  const ast = codeToAst("console.log(3);", { fileName, sourceMapFileName });
+
+  traverse(ast, {
+    Identifier(nodePath) {
+      const node = nodePath.node;
+      if (node.name === "log") {
+        nodePath.replaceWith(types.identifier("pog"));
+      }
+    },
+  });
+
+  const result = print(ast, {
+    printMethod: "recast.print",
+    fileName,
+    sourceMapFileName,
+  });
+  expect(result).toMatchInlineSnapshot(`
+    {
+      "code": "console.pog(3);",
+      "map": {
+        "file": "myfile.js.map",
+        "mappings": "AAAA,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,IAAI,CAAC,CAAC,CAAC",
+        "names": [],
+        "sources": [
+          "myfile.js",
+        ],
+        "sourcesContent": [
+          "console.log(3);",
+        ],
+        "version": 3,
+      },
+    }
+  `);
+});
+
+test("print function (source maps, recast.prettyPrint)", () => {
+  const fileName = "myfile.js";
+  const sourceMapFileName = "myfile.js.map";
+
+  const ast = codeToAst("console.log(3);", { fileName, sourceMapFileName });
+
+  traverse(ast, {
+    Identifier(nodePath) {
+      const node = nodePath.node;
+      if (node.name === "log") {
+        nodePath.replaceWith(types.identifier("pog"));
+      }
+    },
+  });
+
+  const result = print(ast, {
+    printMethod: "recast.prettyPrint",
+    fileName,
+    sourceMapFileName,
+  });
+  expect(result).toMatchInlineSnapshot(`
+    {
+      "code": "console.pog(3);",
+      "map": null,
+    }
+  `);
+});
+
+test("print function (source maps, @babel/generator)", () => {
+  const fileName = "myfile.js";
+  const sourceMapFileName = "myfile.js.map";
+
+  const ast = codeToAst("console.log(3);", { fileName, sourceMapFileName });
+
+  traverse(ast, {
+    Identifier(nodePath) {
+      const node = nodePath.node;
+      if (node.name === "log") {
+        nodePath.replaceWith(types.identifier("pog"));
+      }
+    },
+  });
+
+  const result = print(ast, {
+    printMethod: "@babel/generator",
+    fileName,
+    sourceMapFileName,
+  });
+  expect(result).toMatchInlineSnapshot(`
+    {
+      "code": "console.pog(3);",
+      "map": {
+        "file": undefined,
+        "mappings": "AAAAA,OAAO,CAAAC,GAAI,CAAC,CAAC,CAAC",
+        "names": [
+          "console",
+          "pog",
+        ],
+        "sourceRoot": undefined,
+        "sources": [
+          "myfile.js",
+        ],
+        "sourcesContent": [
+          null,
+        ],
+        "version": 3,
+      },
+    }
+  `);
+});

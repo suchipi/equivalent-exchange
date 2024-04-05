@@ -12,7 +12,7 @@ import { PrintOptions, TransmuteResult } from "./ee-types";
  */
 export function print(
   ast: types.Node,
-  options: PrintOptions = {}
+  options: PrintOptions = {},
 ): TransmuteResult {
   const printMethod = options.printMethod || "recast.print";
 
@@ -21,32 +21,30 @@ export function print(
     case "recast.prettyPrint": {
       const printFunction =
         printMethod === "recast.print" ? recast.print : recast.prettyPrint;
-      const recastResult = printFunction.call(recast, ast, {
-        sourceMapName: options.sourceMapFileName || "sourcemap.json",
-      });
 
-      return {
-        code: recastResult.code,
-        map:
-          options.fileName && options.sourceMapFileName
-            ? recastResult.map
-            : null,
-      };
+      if (options.fileName && options.sourceMapFileName) {
+        const { code, map } = printFunction.call(recast, ast, {
+          sourceFileName: options.fileName,
+          sourceMapName: options.sourceMapFileName,
+        });
+        return { code, map: map || null };
+      } else {
+        const { code } = printFunction.call(recast, ast);
+        return { code, map: null };
+      }
     }
 
     case "@babel/generator": {
-      const babelResult = babelGenerator.default(ast, {
+      const { code, map } = babelGenerator.default(ast, {
         sourceFileName: options.fileName,
         sourceMaps: Boolean(options.sourceMapFileName),
       });
 
-      return {
-        code: babelResult.code,
-        map:
-          options.fileName && options.sourceMapFileName
-            ? babelResult.map
-            : null,
-      };
+      if (options.fileName && options.sourceMapFileName) {
+        return { code, map: map || null };
+      } else {
+        return { code, map: null };
+      }
     }
 
     default: {
