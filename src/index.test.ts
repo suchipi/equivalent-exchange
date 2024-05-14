@@ -435,6 +435,40 @@ test("parse function (JSX explicitly disabled)", () => {
   expect(init.expression.type).toBe("NumericLiteral");
 });
 
+test("parse function (v8Intrinsic enabled without changing pipeline syntax)", () => {
+  expect(() => {
+    parse("const a = %Something()", {
+      v8Intrinsic: true,
+    });
+  }).toThrowErrorMatchingInlineSnapshot(
+    `[Error: Babel disallows using both v8Intrinsic and Hack-style pipes together. \`equivalent-exchange\` has hack-style pipeline syntax enabled by default. Either disable the 'v8Intrinsic' option or change the 'pipelineSyntax' option to a different value, such as 'none' (it defaults to 'hack').]`,
+  );
+});
+
+test("parse function (v8Intrinsic enabled, pipeline syntax disabled)", () => {
+  const node = parse("const a = %Something()", {
+    v8Intrinsic: true,
+    pipelineSyntax: "none",
+  });
+  expect(node.program.body[0].type).toBe("VariableDeclaration");
+  const decl = node.program.body[0];
+  expect(decl.declarations[0].init.type).toBe("CallExpression");
+  expect(decl.declarations[0].init.callee.type).toBe("V8IntrinsicIdentifier");
+  expect(decl.declarations[0].init.callee.name).toBe("Something");
+});
+
+test("parse function (v8Intrinsic enabled, pipeline syntax changed to fsharp)", () => {
+  const node = parse("const a = %Something()", {
+    v8Intrinsic: true,
+    pipelineSyntax: "fsharp",
+  });
+  expect(node.program.body[0].type).toBe("VariableDeclaration");
+  const decl = node.program.body[0];
+  expect(decl.declarations[0].init.type).toBe("CallExpression");
+  expect(decl.declarations[0].init.callee.type).toBe("V8IntrinsicIdentifier");
+  expect(decl.declarations[0].init.callee.name).toBe("Something");
+});
+
 test("print function (basic)", () => {
   const node = types.identifier("hi");
   const result = print(node);

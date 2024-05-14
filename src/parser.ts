@@ -10,6 +10,80 @@ export const parse = (source: string, options: ParseOptions = {}): any => {
   const pipelineSyntax = options.pipelineSyntax || "hack";
   const hackPipelineTopicToken = options.hackPipelineTopicToken || "%";
   const jsxEnabled = options.jsxEnabled !== false;
+  const v8Intrinsic = options.v8Intrinsic ?? false;
+
+  const plugins: babelParser.ParserOptions["plugins"] = [
+    "asyncDoExpressions",
+    "asyncGenerators",
+    "bigInt",
+    "classPrivateMethods",
+    "classPrivateProperties",
+    "classProperties",
+    "classStaticBlock",
+    "decimal",
+
+    "doExpressions",
+    "dynamicImport",
+    "exportDefaultFrom",
+    "exportNamespaceFrom",
+    "functionBind",
+    "functionSent",
+    "importAssertions",
+    "importMeta",
+    "logicalAssignment",
+    "moduleBlocks",
+    "moduleStringNames",
+    "nullishCoalescingOperator",
+    "numericSeparator",
+    "objectRestSpread",
+    "optionalCatchBinding",
+    "optionalChaining",
+    "partialApplication",
+    "privateIn",
+    "throwExpressions",
+    "topLevelAwait",
+  ];
+
+  if (typeSyntax === "flow") {
+    plugins.push("flow", "flowComments");
+  } else {
+    plugins.push("typescript");
+  }
+
+  if (jsxEnabled) {
+    plugins.push("jsx");
+  }
+
+  if (decoratorSyntax === "new") {
+    plugins.push("decorators");
+  } else {
+    plugins.push("decorators-legacy");
+  }
+
+  if (v8Intrinsic) {
+    if (pipelineSyntax === "hack") {
+      throw new Error(
+        "Babel disallows using both v8Intrinsic and Hack-style pipes together. `equivalent-exchange` has hack-style pipeline syntax enabled by default. Either disable the 'v8Intrinsic' option or change the 'pipelineSyntax' option to a different value, such as 'none' (it defaults to 'hack').",
+      );
+    }
+    plugins.push("v8intrinsic");
+  }
+
+  if (pipelineSyntax !== "none") {
+    plugins.push([
+      "pipelineOperator",
+      {
+        proposal: pipelineSyntax,
+        ...(pipelineSyntax === "hack"
+          ? {
+              // Babel's type disallows "^", but babel's runtime
+              // seems to allow it, so ignore this error.
+              topicToken: hackPipelineTopicToken as any,
+            }
+          : {}),
+      },
+    ]);
+  }
 
   return babelParser.parse(source, {
     sourceFilename: options.fileName,
@@ -19,58 +93,6 @@ export const parse = (source: string, options: ParseOptions = {}): any => {
     allowSuperOutsideMethod: true,
     allowUndeclaredExports: true,
     tokens: true,
-    plugins: [
-      ...(typeSyntax === "flow"
-        ? (["flow", "flowComments"] as const)
-        : (["typescript"] as const)),
-
-      ...(jsxEnabled ? (["jsx"] as const) : ([] as const)),
-
-      "asyncDoExpressions",
-      "asyncGenerators",
-      "bigInt",
-      "classPrivateMethods",
-      "classPrivateProperties",
-      "classProperties",
-      "classStaticBlock",
-      "decimal",
-
-      decoratorSyntax === "new" ? "decorators" : "decorators-legacy",
-
-      "doExpressions",
-      "dynamicImport",
-      "exportDefaultFrom",
-      "exportNamespaceFrom",
-      "functionBind",
-      "functionSent",
-      "importAssertions",
-      "importMeta",
-      "logicalAssignment",
-      "moduleBlocks",
-      "moduleStringNames",
-      "nullishCoalescingOperator",
-      "numericSeparator",
-      "objectRestSpread",
-      "optionalCatchBinding",
-      "optionalChaining",
-      "partialApplication",
-      "privateIn",
-      "throwExpressions",
-      "topLevelAwait",
-
-      [
-        "pipelineOperator",
-        {
-          proposal: pipelineSyntax,
-          ...(pipelineSyntax === "hack"
-            ? {
-                // Babel's type disallows "^", but babel's runtime
-                // seems to allow it, so ignore this error.
-                topicToken: hackPipelineTopicToken as any,
-              }
-            : {}),
-        },
-      ],
-    ],
+    plugins,
   });
 };

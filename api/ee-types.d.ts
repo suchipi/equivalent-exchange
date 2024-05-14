@@ -43,6 +43,11 @@ export type ParseOptions = {
    */
   jsxEnabled?: boolean;
   /**
+   * Whether to enable `@babel/parser`'s `v8intrinsic` plugin, which allows
+   * parsing V8 identifier syntax like `%GetOptimizationStatus(fn)`.
+   */
+  v8Intrinsic?: boolean;
+  /**
    * The name of the file whose code you are transmuting.
    *
    * If passed, parse errors thrown by `transmute` will be clearer,
