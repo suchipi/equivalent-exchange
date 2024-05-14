@@ -26,7 +26,7 @@ export type ParseOptions = {
    *
    * Defaults to "hack".
    */
-  pipelineSyntax?: "minimal" | "fsharp" | "hack" | "smart";
+  pipelineSyntax?: "minimal" | "fsharp" | "hack" | "smart" | "none";
   /**
    * Which topic token to use when using the "hack" syntax proposal for the pipeline operator.
    *
@@ -45,6 +45,8 @@ export type ParseOptions = {
   /**
    * Whether to enable `@babel/parser`'s `v8intrinsic` plugin, which allows
    * parsing V8 identifier syntax like `%GetOptimizationStatus(fn)`.
+   *
+   * NOTE: If you enable this, you CANNOT set pipelineSyntax to "hack" (which is the default).
    */
   v8Intrinsic?: boolean;
   /**
