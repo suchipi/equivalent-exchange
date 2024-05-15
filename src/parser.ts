@@ -61,6 +61,12 @@ export const parse = (source: string, options: ParseOptions = {}): any => {
     plugins.push("decorators-legacy");
   }
 
+  if (v8Intrinsic && placeholders) {
+    throw new Error(
+      "Babel disallows using both v8Intrinsic and placeholders together at the same time. Either disable the 'v8Intrinsic' option or disable the 'placeholders' option.",
+    );
+  }
+
   if (v8Intrinsic) {
     if (pipelineSyntax === "hack") {
       throw new Error(

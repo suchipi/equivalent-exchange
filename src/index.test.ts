@@ -505,6 +505,17 @@ test("parse function (placeholders enabled, pipeline syntax changed to fsharp)",
   expect(placeholder.name.name).toBe("b");
 });
 
+test("parse function (placeholders enabled, v8 intrinsics enabled)", () => {
+  expect(() => {
+    parse("const a = %Something(%%b%%)", {
+      placeholders: true,
+      v8Intrinsic: true,
+    });
+  }).toThrowErrorMatchingInlineSnapshot(
+    `[Error: Babel disallows using both v8Intrinsic and placeholders together at the same time. Either disable the 'v8Intrinsic' option or disable the 'placeholders' option.]`,
+  );
+});
+
 test("print function (basic)", () => {
   const node = types.identifier("hi");
   const result = print(node);
