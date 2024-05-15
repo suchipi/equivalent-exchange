@@ -53,9 +53,19 @@ export type ParseOptions = {
    * Whether to enable `@babel/parser`'s `v8intrinsic` plugin, which allows
    * parsing V8 identifier syntax like `%GetOptimizationStatus(fn)`.
    *
-   * NOTE: If you enable this, you CANNOT set pipelineSyntax to "hack" (which is the default).
+   * NOTE: If you enable this, you CANNOT set pipelineSyntax to "hack" (which is
+   * the default).
    */
   v8Intrinsic?: boolean;
+
+  /**
+   * Whether to enable `@babel/parser`'s `placeholders` plugin, which allows
+   * parsing syntax like `const thing = %%SOMETHING%%`.
+   *
+   * NOTE: If you enable this, you CANNOT set pipelineSyntax to "hack" (which is
+   * the default).
+   */
+  placeholders?: boolean;
 
   /**
    * The name of the file whose code you are transmuting.

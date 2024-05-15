@@ -11,6 +11,7 @@ export const parse = (source: string, options: ParseOptions = {}): any => {
   const hackPipelineTopicToken = options.hackPipelineTopicToken || "%";
   const jsxEnabled = options.jsxEnabled !== false;
   const v8Intrinsic = options.v8Intrinsic ?? false;
+  const placeholders = options.placeholders ?? false;
 
   const plugins: babelParser.ParserOptions["plugins"] = [
     "asyncDoExpressions",
@@ -67,6 +68,15 @@ export const parse = (source: string, options: ParseOptions = {}): any => {
       );
     }
     plugins.push("v8intrinsic");
+  }
+
+  if (placeholders) {
+    if (pipelineSyntax === "hack") {
+      throw new Error(
+        "Babel disallows using both placeholders and Hack-style pipes together. `equivalent-exchange` has hack-style pipeline syntax enabled by default. Either disable the 'placeholders' option or change the 'pipelineSyntax' option to a different value, such as 'none' (it defaults to 'hack').",
+      );
+    }
+    plugins.push("placeholders");
   }
 
   if (pipelineSyntax !== "none") {

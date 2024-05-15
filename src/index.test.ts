@@ -469,6 +469,42 @@ test("parse function (v8Intrinsic enabled, pipeline syntax changed to fsharp)", 
   expect(decl.declarations[0].init.callee.name).toBe("Something");
 });
 
+test("parse function (placeholders enabled without changing pipeline syntax)", () => {
+  expect(() => {
+    parse("const a = %%b%%", {
+      placeholders: true,
+    });
+  }).toThrowErrorMatchingInlineSnapshot(
+    `[Error: Babel disallows using both placeholders and Hack-style pipes together. \`equivalent-exchange\` has hack-style pipeline syntax enabled by default. Either disable the 'placeholders' option or change the 'pipelineSyntax' option to a different value, such as 'none' (it defaults to 'hack').]`,
+  );
+});
+
+test("parse function (placeholders enabled, pipeline syntax disabled)", () => {
+  const node = parse("const a = %%b%%", {
+    placeholders: true,
+    pipelineSyntax: "none",
+  });
+  expect(node.program.body[0].type).toBe("VariableDeclaration");
+  const decl = node.program.body[0];
+  expect(decl.declarations[0].init.type).toBe("Placeholder");
+  const placeholder = decl.declarations[0].init;
+  expect(placeholder.name.type).toBe("Identifier");
+  expect(placeholder.name.name).toBe("b");
+});
+
+test("parse function (placeholders enabled, pipeline syntax changed to fsharp)", () => {
+  const node = parse("const a = %%b%%", {
+    placeholders: true,
+    pipelineSyntax: "fsharp",
+  });
+  expect(node.program.body[0].type).toBe("VariableDeclaration");
+  const decl = node.program.body[0];
+  expect(decl.declarations[0].init.type).toBe("Placeholder");
+  const placeholder = decl.declarations[0].init;
+  expect(placeholder.name.type).toBe("Identifier");
+  expect(placeholder.name.name).toBe("b");
+});
+
 test("print function (basic)", () => {
   const node = types.identifier("hi");
   const result = print(node);
