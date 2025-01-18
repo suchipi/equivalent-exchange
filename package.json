@@ -24,17 +24,17 @@
     "url": "git+https://github.com/suchipi/equivalent-exchange.git"
   },
   "devDependencies": {
-    "prettier": "^3.3.3",
-    "typescript": "^5.6.3",
-    "vitest": "^2.1.4"
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.2"
   },
   "dependencies": {
     "@babel/core": "^7.26.0",
-    "@babel/generator": "^7.26.2",
-    "@babel/parser": "^7.26.2",
+    "@babel/generator": "^7.26.5",
+    "@babel/parser": "^7.26.5",
     "@babel/template": "^7.25.9",
-    "@babel/traverse": "^7.25.9",
-    "@babel/types": "^7.26.0",
+    "@babel/traverse": "^7.26.5",
+    "@babel/types": "^7.26.5",
     "@types/babel__core": "^7.20.5",
     "recast": "^0.23.9"
   },
