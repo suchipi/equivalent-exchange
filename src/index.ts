@@ -111,7 +111,7 @@ export function clone<T extends Clonable>(input: T): T {
   if (Array.isArray(input)) {
     const copy = new Array(input.length);
     for (let i = 0; i < input.length; i++) {
-      copy[i] = input[i];
+      copy[i] = clone(input[i]);
     }
     // @ts-ignore could be instantiated with different subtype
     return copy;

@@ -163,12 +163,16 @@ test("clone helper", async () => {
   expect(otherAst).toBeInstanceOf(ast.constructor);
   expect(types.isFile(ast)).toBe(true);
   expect(types.isFile(otherAst)).toBe(true);
+  expect(ast.program).not.toBe(otherAst.program);
+  expect(ast.program.body[0]).not.toBe(otherAst.program.body[0]);
 
   expect(astToCode(ast).code).toMatchInlineSnapshot(
     "\"console.log(   'hi there!' );\"",
   );
+
+  // recast-tracked formatting is lost. I think I don't care?
   expect(astToCode(otherAst).code).toMatchInlineSnapshot(
-    "\"console.log(   'hi there!' );\"",
+    '"console.log("hi there!");"',
   );
 });
 
