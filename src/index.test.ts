@@ -398,6 +398,28 @@ test("parse function (typescript)", () => {
   expect(arrowFnExpr.returnType.typeAnnotation.type).toBe("TSStringKeyword");
 });
 
+test("parse function (typescript-dts)", () => {
+  // Note: without dts option, this fails with "Missing initializer in const declaration."
+  const node = parse("export const a: string;", {
+    typeSyntax: "typescript-dts",
+  });
+  expect(node.type).toBe("File");
+  expect(node.program.body[0].type).toBe("ExportNamedDeclaration");
+  const exportDecl = node.program.body[0];
+  expect(exportDecl.declaration.type).toBe("VariableDeclaration");
+  const variableDeclaration = exportDecl.declaration;
+  expect(variableDeclaration.declarations[0].type).toBe("VariableDeclarator");
+  const variableDeclarator = variableDeclaration.declarations[0];
+
+  // Note: const declaration without init not allowed in non-dts
+  expect(variableDeclaration.kind).toBe("const");
+  expect(variableDeclarator.init).toBe(null);
+
+  expect(variableDeclarator.id.type).toBe("Identifier");
+  const typeAnnotation = variableDeclarator.id.typeAnnotation;
+  expect(typeAnnotation.type).toBe("TSTypeAnnotation");
+});
+
 test("parse function (flow)", () => {
   const node = parse("const a = (something: string): string => something;", {
     typeSyntax: "flow",

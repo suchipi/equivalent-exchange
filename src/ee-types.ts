@@ -16,7 +16,7 @@ export type ParseOptions = {
    *
    * Defaults to "typescript".
    */
-  typeSyntax?: "typescript" | "flow";
+  typeSyntax?: "typescript" | "typescript-dts" | "flow";
 
   /**
    * Which decorator proposal syntax to use.

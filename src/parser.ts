@@ -47,8 +47,10 @@ export const parse = (source: string, options: ParseOptions = {}): any => {
 
   if (typeSyntax === "flow") {
     plugins.push("flow", "flowComments");
-  } else {
+  } else if (typeSyntax === "typescript") {
     plugins.push("typescript");
+  } else if (typeSyntax === "typescript-dts") {
+    plugins.push(["typescript", { dts: true }]);
   }
 
   if (jsxEnabled) {
