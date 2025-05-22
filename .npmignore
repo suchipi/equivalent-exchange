@@ -2,3 +2,4 @@ api
 src
 dist/build-docs.d.ts
 dist/build-docs.js
+dist/api-urls.json
