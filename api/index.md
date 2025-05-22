@@ -1,88 +1,115 @@
-# traverse (exported binding)
+# transmute (exported Transmute)
 
-Re-export of `@babel/traverse`'s default export.
+The transmute function; star of the library. See [Transmute](/api/index.md#transmute-exported-interface).
 
 ```ts
-export { traverse };
+const transmute: Transmute;
 ```
 
-# types (exported binding)
+# Transmute (exported interface)
 
-Contains the named exports of both `@babel/types` and `@babel/traverse`.
+The interface of the `transmute` function, which has 4 different call signatures.
 
 ```ts
-export { types };
+interface Transmute {
+  (
+    code: string,
+    transform: (ast: AST) => Promise<void>,
+  ): Promise<TransmuteResult>;
+  (
+    code: string,
+    options: TransmuteOptions,
+    transform: (ast: types.Node) => Promise<void>,
+  ): Promise<TransmuteResult>;
+  (code: string, transform: (ast: AST) => void): TransmuteResult;
+  (
+    code: string,
+    options: TransmuteOptions,
+    transform: (ast: types.Node) => void,
+  ): TransmuteResult;
+}
 ```
 
-# template (exported binding)
+## Transmute(...) (call signature)
 
-Re-export of `@babel/template`'s default export.
+Parses `code` into an AST, then passes that to `transform`, which is
+expected to mutate the AST somehow.
+
+Once the Promise returned by `transform` has resolved, it converts the AST
+back into a string, and returns you a [TransmuteResult](/api/ee-types.md#transmuteresult-exported-type), which has
+the transformed string on it as its `code` property.
 
 ```ts
-export { template };
+(code: string, transform: (ast: AST) => Promise<void>): Promise<TransmuteResult>;
 ```
 
-# AST (exported binding)
+## Transmute(...) (call signature)
 
-See [AST](/api/ee-types.md#ast-exported-type).
+Parses `code` into an AST, then passes that to `transform`, which is
+expected to mutate the AST somehow.
+
+Once the Promise returned by `transform` has resolved, it converts the AST
+back into a string, and returns you a [TransmuteResult](/api/ee-types.md#transmuteresult-exported-type), which has
+the transformed string on it as its `code` property.
+
+The contents of `options` will determine what syntax options to use to
+parse the code, and whether to consume/generate source maps. See
+[TransmuteOptions](/api/ee-types.md#transmuteoptions-exported-type) for more details.
 
 ```ts
-export { AST };
+(code: string, options: TransmuteOptions, transform: (ast: types.Node) => Promise<void>): Promise<TransmuteResult>;
 ```
 
-# TransmuteOptions (exported binding)
+## Transmute(...) (call signature)
 
-See [TransmuteOptions](/api/ee-types.md#transmuteoptions-exported-type).
+Parses `code` into an AST, then passes that to `transform`, which
+is expected to mutate the AST somehow.
+
+Then, it converts the AST back into a string, and returns you a
+[TransmuteResult](/api/ee-types.md#transmuteresult-exported-type), which has the transformed string on it as its
+`code` property.
 
 ```ts
-export { TransmuteOptions };
+(code: string, transform: (ast: AST) => void): TransmuteResult;
 ```
 
-# ParseOptions (exported binding)
+## Transmute(...) (call signature)
 
-See [ParseOptions](/api/ee-types.md#parseoptions-exported-type).
+Parses `code` into an AST, then passes that to `transform`, which is
+expected to mutate the AST somehow.
+
+Then, it converts the AST back into a string, and returns you a
+[TransmuteResult](/api/ee-types.md#transmuteresult-exported-type), which has the transformed string on it as its
+`code` property.
+
+The contents of `options` will determine what syntax options to use to
+parse the code, and whether to consume/generate source maps. See
+[TransmuteOptions](/api/ee-types.md#transmuteoptions-exported-type) for more details.
 
 ```ts
-export { ParseOptions };
+(code: string, options: TransmuteOptions, transform: (ast: types.Node) => void): TransmuteResult;
 ```
 
-# PrintOptions (exported binding)
+# astToCode (exported function)
 
-See [PrintOptions](/api/ee-types.md#printoptions-exported-type).
+Converts an AST back into a code string.
 
-```ts
-export { PrintOptions };
-```
+This function is used internally by [transmute](/api/index.md#transmute-exported-function).
 
-# TransmuteResult (exported binding)
-
-See [TransmuteResult](/api/ee-types.md#transmuteresult-exported-type).
+The options parameter works the same as the options parameter for `transmute`.
 
 ```ts
-export { TransmuteResult };
-```
-
-# parse (exported function)
-
-The function `parser.parse` is re-exported as the named export 'parse' for use with AST
-tooling that lets you specify a parser module.
-
-```ts
-const parse: (source: string, options?: ParseOptions) => any;
-```
-
-# print (exported value)
-
-The function `printer.print` is re-exported as the named export 'print' for use with AST
-tooling that lets you specify a printer module.
-
-```ts
-const print: typeof printer.print;
+declare function astToCode(
+  ast: types.Node,
+  options?: TransmuteOptions,
+): TransmuteResult;
 ```
 
 # CodeToAst (interface)
 
-The various call signatures of the [codeToAst](/api/index.md#codetoast-exported-codetoast) function.
+The various call signatures of the [codeToAst](/api/index.md#codetoast-exported-codetoast) function. When option
+`expression` is true, it returns a `types.Node`, but when it isn't, it
+returns an `AST`, which is an alias for `types.File`.
 
 ```ts
 interface CodeToAst {
@@ -149,7 +176,7 @@ interface CodeToAst {
 
 Parses a JavaScript/TypeScript code string into an AST.
 
-This function is used internally by `transmute`.
+This function is used internally by [transmute](/api/index.md#transmute-exported-function).
 
 The options parameter works the same as the options parameter for `transmute`.
 
@@ -157,24 +184,18 @@ The options parameter works the same as the options parameter for `transmute`.
 const codeToAst: CodeToAst;
 ```
 
-# astToCode (exported function)
+# clone (exported function)
 
-Converts an AST back into a code string.
+Utility function which deeply-clones the provided object or value. Primitive
+values are returned as-is (ie not cloned).
 
-This function is used internally by `transmute`.
-
-The options parameter works the same as the options parameter for `transmute`.
+This can be useful when you need to clone an AST node.
 
 ```ts
-declare function astToCode(
-  ast: types.Node,
-  options?: TransmuteOptions,
-): TransmuteResult;
+declare function clone<T extends Clonable>(input: T): T;
 ```
 
 # Clonable (type)
-
-Union of all types supported by the [clone](/api/index.md#clone-exported-function) function.
 
 ```ts
 type Clonable =
@@ -187,22 +208,13 @@ type Clonable =
   | Array<Clonable>;
 ```
 
-# clone (exported function)
-
-Deeply-clone the provided object or value. Primitive values are returned
-as-is.
-
-This can be useful when you need to clone an AST node.
-
-```ts
-declare function clone<T extends Clonable>(input: T): T;
-```
-
 # hasShape (exported function)
 
-Function which checks whether `input` is a structural subset of `shape`.
+Utility function which checks whether `input` is a structural subset of
+`shape`.
 
-This can be useful when you need to check if an AST node has a set of properties.
+This can be useful when you need to check if an AST node has a set of
+properties.
 
 ```ts
 declare function hasShape<Input, Shape>(
@@ -211,94 +223,98 @@ declare function hasShape<Input, Shape>(
 ): input is Input & Shape;
 ```
 
-# Transmute (exported interface)
+# traverse (exported binding)
 
-The interface of the `transmute` function, which has 4 different call signatures.
+Re-export of `@babel/traverse`'s default export.
 
 ```ts
-interface Transmute {
-  (
-    code: string,
-    transform: (ast: AST) => Promise<void>,
-  ): Promise<TransmuteResult>;
-  (
-    code: string,
-    options: TransmuteOptions,
-    transform: (ast: types.Node) => Promise<void>,
-  ): Promise<TransmuteResult>;
-  (code: string, transform: (ast: AST) => void): TransmuteResult;
-  (
-    code: string,
-    options: TransmuteOptions,
-    transform: (ast: types.Node) => void,
-  ): TransmuteResult;
-}
+export { traverse };
 ```
 
-## Transmute(...) (call signature)
+# types (exported binding)
 
-Parses `code` into an AST, then passes that to `transform`, which
-is expected to mutate the AST somehow.
-
-Once the Promise returned by `transform` has resolved, it converts
-the AST back into a string, and returns you a `TransmuteResult`,
-which has the transformed string on it as its `code` property.
+Contains the named exports of both `@babel/types` and `@babel/traverse`.
 
 ```ts
-(code: string, transform: (ast: AST) => Promise<void>): Promise<TransmuteResult>;
+export { types };
 ```
 
-## Transmute(...) (call signature)
+# template (exported binding)
 
-Parses `code` into an AST, then passes that to `transform`, which
-is expected to mutate the AST somehow.
-
-Once the Promise returned by `transform` has resolved, it converts
-the AST back into a string, and returns you a `TransmuteResult`,
-which has the transformed string on it as its `code` property.
-
-The contents of `options` will determine what syntax options to use
-to parse the code, and whether to consume/generate source maps.
-See the definition for `TransmuteOptions` for more details.
+Re-export of `@babel/template`'s default export.
 
 ```ts
-(code: string, options: TransmuteOptions, transform: (ast: types.Node) => Promise<void>): Promise<TransmuteResult>;
+export { template };
 ```
 
-## Transmute(...) (call signature)
+# AST (exported type)
 
-Parses `code` into an AST, then passes that to `transform`, which
-is expected to mutate the AST somehow.
-
-Then, it converts the AST back into a string, and returns you a
-`TransmuteResult`, which has the transformed string on it as its
-`code` property.
+Type returned by [codeToAst](/api/index.md#codetoast-exported-codetoast). See [AST](/api/ee-types.md#ast-exported-type).
 
 ```ts
-(code: string, transform: (ast: AST) => void): TransmuteResult;
+export { type AST };
 ```
 
-## Transmute(...) (call signature)
+# TransmuteOptions (exported type)
 
-Parses `code` into an AST, then passes that to `transform`, which
-is expected to mutate the AST somehow.
-
-Then, it converts the AST back into a string, and returns you a
-`TransmuteResult`, which has the transformed string on it as its
-`code` property.
-
-The contents of `options` will determine what syntax options to use
-to parse the code, and whether to consume/generate source maps.
-See the definition for `TransmuteOptions` for more details.
+Type used by [transmute](/api/index.md#transmute-exported-function). See [TransmuteOptions](/api/ee-types.md#transmuteoptions-exported-type).
 
 ```ts
-(code: string, options: TransmuteOptions, transform: (ast: types.Node) => void): TransmuteResult;
+export { type TransmuteOptions };
 ```
 
-# transmute (exported Transmute)
+# ParseOptions (exported type)
 
-See [Transmute](/api/index.md#transmute-exported-interface).
+Type used by [parse](/api/index.md#parse-exported-function) and [TransmuteOptions](/api/ee-types.md#transmuteoptions-exported-type). See [ParseOptions](/api/ee-types.md#parseoptions-exported-type).
 
 ```ts
-const transmute: Transmute;
+export { type ParseOptions };
+```
+
+# PrintOptions (exported type)
+
+Type used by [print](/api/index.md#print-exported-function) and [TransmuteOptions](/api/ee-types.md#transmuteoptions-exported-type). See [PrintOptions](/api/ee-types.md#printoptions-exported-type).
+
+```ts
+export { type PrintOptions };
+```
+
+# TransmuteResult (exported type)
+
+Type returned by [transmute](/api/index.md#transmute-exported-function). See [TransmuteResult](/api/ee-types.md#transmuteresult-exported-type).
+
+```ts
+export { type TransmuteResult };
+```
+
+# parse (exported function)
+
+A version of the function [codeToAst](/api/index.md#codetoast-exported-codetoast) exported as the named export
+'parse', suitable for use with AST tooling that lets you specify a parser
+module.
+
+Unlike `codeToAst`, **`parse` doesn't wrap the resulting AST using recast**,
+and `parse` receives [ParseOptions](/api/ee-types.md#parseoptions-exported-type) (aka the "parseOptions" property of
+[TransmuteOptions](/api/ee-types.md#transmuteoptions-exported-type)), instead of the whole `TransmuteOptions`.
+
+If you aren't sure whether to use `parse` or `codeToAst`, use `codeToAst`.
+
+```ts
+const parse: (source: string, options?: ParseOptions) => any;
+```
+
+# print (exported value)
+
+The version of the function [astToCode](/api/index.md#asttocode-exported-function) exported as the named export
+'print', suitable for use with AST tooling that lets you specify a printer
+module.
+
+Unlike `astToCode`, `print` receives [PrintOptions](/api/ee-types.md#printoptions-exported-type) (aka the
+"printOptions" property of [TransmuteOptions](/api/ee-types.md#transmuteoptions-exported-type)), instead of the whole
+`TransmuteOptions`.
+
+If you aren't sure whether to use `print` or `astToCode`, use `astToCode`.
+
+```ts
+const print: typeof printer.print;
 ```
