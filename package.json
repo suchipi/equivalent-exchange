@@ -6,7 +6,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "test": "vitest",
-    "build": "tsc && cp dist/*.d.ts api/ && prettier --write api/*.d.ts"
+    "build": "tsc && cp dist/*.d.ts api/ && rm api/build-docs.d.ts && prettier --write api/*.d.ts && node ./dist/build-docs.js"
   },
   "keywords": [
     "ast",
@@ -24,6 +24,11 @@
     "url": "git+https://github.com/suchipi/equivalent-exchange.git"
   },
   "devDependencies": {
+    "@suchipi/dtsmd": "^1.1.0",
+    "@types/node": "^22.15.21",
+    "clefairy": "^2.0.0",
+    "glomp": "^3.1.1",
+    "nice-path": "^3.0.0",
     "prettier": "^3.5.3",
     "typescript": "^5.8.2",
     "vitest": "^3.0.9"
