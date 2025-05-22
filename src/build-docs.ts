@@ -4,6 +4,7 @@ import { processSource } from "@suchipi/dtsmd";
 import glomp from "glomp";
 import { Path } from "nice-path";
 import { run } from "clefairy";
+import apiUrls from "./api-urls.json";
 
 run({}, async function main() {
   const rootDir = new Path(__dirname, "..").normalize();
@@ -23,6 +24,7 @@ run({}, async function main() {
 
     const mdResult = await processSource(dtsSource, {
       fileName: fileNameString,
+      links: apiUrls,
     });
     for (const warning of mdResult.warnings) {
       console.warn(warning);

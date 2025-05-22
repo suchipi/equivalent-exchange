@@ -10,20 +10,36 @@ import {
 } from "./ee-types";
 import * as printer from "./printer";
 export {
-  /** Re-export of @babel/traverse's default export. */
+  /** Re-export of `@babel/traverse`'s default export. */
   traverse,
-  /** Contains the named exports of both @babel/types and @babel/traverse. */
+  /** Contains the named exports of both `@babel/types` and `@babel/traverse`. */
   types,
-  /** Re-export of @babel/template's default export. */
+  /** Re-export of `@babel/template`'s default export. */
   template,
+  /** See {@link AST}. */
   AST,
+  /** See {@link TransmuteOptions}. */
   TransmuteOptions,
+  /** See {@link ParseOptions}. */
   ParseOptions,
+  /** See {@link PrintOptions}. */
   PrintOptions,
+  /** See {@link TransmuteResult}. */
   TransmuteResult,
 };
+/**
+ * The function `parser.parse` is re-exported as the named export 'parse' for use with AST
+ * tooling that lets you specify a parser module.
+ */
 export declare const parse: (source: string, options?: ParseOptions) => any;
+/**
+ * The function `printer.print` is re-exported as the named export 'print' for use with AST
+ * tooling that lets you specify a printer module.
+ */
 export declare const print: typeof printer.print;
+/**
+ * The various call signatures of the {@link codeToAst} function.
+ */
 interface CodeToAst {
   (code: string): AST;
   (
@@ -65,6 +81,7 @@ export declare function astToCode(
   ast: types.Node,
   options?: TransmuteOptions,
 ): TransmuteResult;
+/** Union of all types supported by the {@link clone} function. */
 type Clonable =
   | {}
   | number
@@ -73,7 +90,18 @@ type Clonable =
   | undefined
   | boolean
   | Array<Clonable>;
+/**
+ * Deeply-clone the provided object or value. Primitive values are returned
+ * as-is.
+ *
+ * This can be useful when you need to clone an AST node.
+ */
 export declare function clone<T extends Clonable>(input: T): T;
+/**
+ * Function which checks whether `input` is a structural subset of `shape`.
+ *
+ * This can be useful when you need to check if an AST node has a set of properties.
+ */
 export declare function hasShape<Input, Shape>(
   input: Input,
   shape: Shape,
@@ -138,4 +166,5 @@ export interface Transmute {
     transform: (ast: types.Node) => void,
   ): TransmuteResult;
 }
+/** See {@link Transmute}. */
 export declare const transmute: Transmute;

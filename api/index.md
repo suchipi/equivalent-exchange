@@ -1,4 +1,71 @@
+# traverse (exported binding)
+
+Re-export of `@babel/traverse`'s default export.
+
+```ts
+export { traverse };
+```
+
+# types (exported binding)
+
+Contains the named exports of both `@babel/types` and `@babel/traverse`.
+
+```ts
+export { types };
+```
+
+# template (exported binding)
+
+Re-export of `@babel/template`'s default export.
+
+```ts
+export { template };
+```
+
+# AST (exported binding)
+
+See [AST](/api/ee-types.md#ast-exported-type).
+
+```ts
+export { AST };
+```
+
+# TransmuteOptions (exported binding)
+
+See [TransmuteOptions](/api/ee-types.md#transmuteoptions-exported-type).
+
+```ts
+export { TransmuteOptions };
+```
+
+# ParseOptions (exported binding)
+
+See [ParseOptions](/api/ee-types.md#parseoptions-exported-type).
+
+```ts
+export { ParseOptions };
+```
+
+# PrintOptions (exported binding)
+
+See [PrintOptions](/api/ee-types.md#printoptions-exported-type).
+
+```ts
+export { PrintOptions };
+```
+
+# TransmuteResult (exported binding)
+
+See [TransmuteResult](/api/ee-types.md#transmuteresult-exported-type).
+
+```ts
+export { TransmuteResult };
+```
+
 # parse (exported function)
+
+The function `parser.parse` is re-exported as the named export 'parse' for use with AST
+tooling that lets you specify a parser module.
 
 ```ts
 const parse: (source: string, options?: ParseOptions) => any;
@@ -6,11 +73,16 @@ const parse: (source: string, options?: ParseOptions) => any;
 
 # print (exported value)
 
+The function `printer.print` is re-exported as the named export 'print' for use with AST
+tooling that lets you specify a printer module.
+
 ```ts
 const print: typeof printer.print;
 ```
 
 # CodeToAst (interface)
+
+The various call signatures of the [codeToAst](/api/index.md#codetoast-exported-codetoast) function.
 
 ```ts
 interface CodeToAst {
@@ -102,6 +174,8 @@ declare function astToCode(
 
 # Clonable (type)
 
+Union of all types supported by the [clone](/api/index.md#clone-exported-function) function.
+
 ```ts
 type Clonable =
   | {}
@@ -115,11 +189,20 @@ type Clonable =
 
 # clone (exported function)
 
+Deeply-clone the provided object or value. Primitive values are returned
+as-is.
+
+This can be useful when you need to clone an AST node.
+
 ```ts
 declare function clone<T extends Clonable>(input: T): T;
 ```
 
 # hasShape (exported function)
+
+Function which checks whether `input` is a structural subset of `shape`.
+
+This can be useful when you need to check if an AST node has a set of properties.
 
 ```ts
 declare function hasShape<Input, Shape>(
@@ -213,6 +296,8 @@ See the definition for `TransmuteOptions` for more details.
 ```
 
 # transmute (exported Transmute)
+
+See [Transmute](/api/index.md#transmute-exported-interface).
 
 ```ts
 const transmute: Transmute;

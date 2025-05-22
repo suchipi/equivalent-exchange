@@ -1,0 +1,10 @@
+{
+  "AST": "/api/ee-types.md#ast-exported-type",
+  "clone": "/api/index.md#clone-exported-function",
+  "codeToAst": "/api/index.md#codetoast-exported-codetoast",
+  "ParseOptions": "/api/ee-types.md#parseoptions-exported-type",
+  "PrintOptions": "/api/ee-types.md#printoptions-exported-type",
+  "Transmute": "/api/index.md#transmute-exported-interface",
+  "TransmuteOptions": "/api/ee-types.md#transmuteoptions-exported-type",
+  "TransmuteResult": "/api/ee-types.md#transmuteresult-exported-type"
+}

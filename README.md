@@ -33,7 +33,7 @@ Note that you don't have to use the provided `traverse` or `types`; you can muta
 
 ## API Documentation
 
-Please see [api/index.d.ts](https://github.com/suchipi/equivalent-exchange/blob/main/api/index.d.ts) for API documentation. There are lots of comments.
+See </api/index.md>.
 
 ## License
 

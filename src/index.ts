@@ -13,23 +13,39 @@ import * as parser from "./parser";
 import * as printer from "./printer";
 
 export {
-  /** Re-export of @babel/traverse's default export. */
+  /** Re-export of `@babel/traverse`'s default export. */
   traverse,
-  /** Contains the named exports of both @babel/types and @babel/traverse. */
+  /** Contains the named exports of both `@babel/types` and `@babel/traverse`. */
   types,
-  /** Re-export of @babel/template's default export. */
+  /** Re-export of `@babel/template`'s default export. */
   template,
+  /** See {@link AST}. */
   AST,
+  /** See {@link TransmuteOptions}. */
   TransmuteOptions,
+  /** See {@link ParseOptions}. */
   ParseOptions,
+  /** See {@link PrintOptions}. */
   PrintOptions,
+  /** See {@link TransmuteResult}. */
   TransmuteResult,
 };
 
-// For use with AST tools
+/**
+ * The function `parser.parse` is re-exported as the named export 'parse' for use with AST
+ * tooling that lets you specify a parser module.
+ */
 export const parse = parser.parse;
+
+/**
+ * The function `printer.print` is re-exported as the named export 'print' for use with AST
+ * tooling that lets you specify a printer module.
+ */
 export const print = printer.print;
 
+/**
+ * The various call signatures of the {@link codeToAst} function.
+ */
 interface CodeToAst {
   (code: string): AST;
   (code: string, options: TransmuteOptions & { expression: true }): types.Node;
@@ -98,6 +114,7 @@ export function astToCode(
   });
 }
 
+/** Union of all types supported by the {@link clone} function. */
 type Clonable =
   | {}
   | number
@@ -107,6 +124,12 @@ type Clonable =
   | boolean
   | Array<Clonable>;
 
+/**
+ * Deeply-clone the provided object or value. Primitive values are returned
+ * as-is.
+ *
+ * This can be useful when you need to clone an AST node.
+ */
 export function clone<T extends Clonable>(input: T): T {
   if (Array.isArray(input)) {
     const copy = new Array(input.length);
@@ -130,6 +153,11 @@ export function clone<T extends Clonable>(input: T): T {
   return copy;
 }
 
+/**
+ * Function which checks whether `input` is a structural subset of `shape`.
+ *
+ * This can be useful when you need to check if an AST node has a set of properties.
+ */
 export function hasShape<Input, Shape>(
   input: Input,
   shape: Shape,
@@ -209,6 +237,7 @@ export interface Transmute {
   ): TransmuteResult;
 }
 
+/** See {@link Transmute}. */
 // @ts-ignore typescript overload refinement leaves a lot to be desired
 export const transmute: Transmute = (
   ...args: Array<any>
