@@ -33,7 +33,7 @@ Note that you don't have to use the provided `traverse` or `types`; you can muta
 
 ## API Documentation
 
-See </api/index.md>.
+See [api/index.md](/api/index.md).
 
 ## License
 
