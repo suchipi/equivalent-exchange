@@ -9,5 +9,7 @@
   "transmute": "/api/index.md#transmute-exported-function",
   "Transmute": "/api/index.md#transmute-exported-interface",
   "TransmuteOptions": "/api/ee-types.md#transmuteoptions-exported-type",
-  "TransmuteResult": "/api/ee-types.md#transmuteresult-exported-type"
+  "TransmuteResult": "/api/ee-types.md#transmuteresult-exported-type",
+  "clone": "/api/utils.md#clone-exported-function",
+  "hasShape": "/api/utils.md#hasshape-exported-function"
 }

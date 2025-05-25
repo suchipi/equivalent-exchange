@@ -9,6 +9,7 @@ import {
   TransmuteResult,
 } from "./ee-types";
 import * as printer from "./printer";
+import { clone, hasShape } from "./utils";
 /**
  * The transmute function; star of the library. See {@link Transmute}.
  */
@@ -119,32 +120,6 @@ interface CodeToAst {
  * The options parameter works the same as the options parameter for `transmute`.
  */
 export declare const codeToAst: CodeToAst;
-/**
- * Utility function which deeply-clones the provided object or value. Primitive
- * values are returned as-is (ie not cloned).
- *
- * This can be useful when you need to clone an AST node.
- */
-export declare function clone<T extends Clonable>(input: T): T;
-type Clonable =
-  | {}
-  | number
-  | string
-  | null
-  | undefined
-  | boolean
-  | Array<Clonable>;
-/**
- * Utility function which checks whether `input` is a structural subset of
- * `shape`.
- *
- * This can be useful when you need to check if an AST node has a set of
- * properties.
- */
-export declare function hasShape<Input, Shape>(
-  input: Input,
-  shape: Shape,
-): input is Input & Shape;
 export {
   /** Re-export of `@babel/traverse`'s default export. */
   traverse,
@@ -162,6 +137,10 @@ export {
   type PrintOptions,
   /** Type returned by {@link transmute}. See {@link TransmuteResult}. */
   type TransmuteResult,
+  /** AST node cloner utility function. See {@link clone}. */
+  clone,
+  /** Deep object property comparison checker utility function. See {@link hasShape}. */
+  hasShape,
 };
 /**
  * A version of the function {@link codeToAst} exported as the named export

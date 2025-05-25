@@ -184,45 +184,6 @@ The options parameter works the same as the options parameter for `transmute`.
 const codeToAst: CodeToAst;
 ```
 
-# clone (exported function)
-
-Utility function which deeply-clones the provided object or value. Primitive
-values are returned as-is (ie not cloned).
-
-This can be useful when you need to clone an AST node.
-
-```ts
-declare function clone<T extends Clonable>(input: T): T;
-```
-
-# Clonable (type)
-
-```ts
-type Clonable =
-  | {}
-  | number
-  | string
-  | null
-  | undefined
-  | boolean
-  | Array<Clonable>;
-```
-
-# hasShape (exported function)
-
-Utility function which checks whether `input` is a structural subset of
-`shape`.
-
-This can be useful when you need to check if an AST node has a set of
-properties.
-
-```ts
-declare function hasShape<Input, Shape>(
-  input: Input,
-  shape: Shape,
-): input is Input & Shape;
-```
-
 # traverse (exported binding)
 
 Re-export of `@babel/traverse`'s default export.
@@ -285,6 +246,22 @@ Type returned by [transmute](/api/index.md#transmute-exported-function). See [Tr
 
 ```ts
 export { type TransmuteResult };
+```
+
+# clone (exported binding)
+
+AST node cloner utility function. See [clone](/api/utils.md#clone-exported-function).
+
+```ts
+export { clone };
+```
+
+# hasShape (exported binding)
+
+Deep object property comparison checker utility function. See [hasShape](/api/utils.md#hasshape-exported-function).
+
+```ts
+export { hasShape };
 ```
 
 # parse (exported function)
