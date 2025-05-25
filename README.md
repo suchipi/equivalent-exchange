@@ -4,7 +4,7 @@ Transmute one JavaScript string into another by way of mutating its AST. Powered
 
 ## Features
 
-- Can parse code using modern ES20XX syntax, as well as either TypeScript or Flow syntax.
+- Can parse code using modern ES20XX syntax, as well as JSX/TSX and TypeScript/Flow syntax.
 - Maintains the source formatting of the original source, where possible; only modified parts of the code will be touched.
 - Can generate a source map that maps your input file into your transformed output.
 
