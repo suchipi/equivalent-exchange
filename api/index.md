@@ -293,9 +293,13 @@ A version of the function [codeToAst](/api/index.md#codetoast-exported-codetoast
 'parse', suitable for use with AST tooling that lets you specify a parser
 module.
 
-Unlike `codeToAst`, **`parse` doesn't wrap the resulting AST using recast**,
-and `parse` receives [ParseOptions](/api/ee-types.md#parseoptions-exported-type) (aka the "parseOptions" property of
-[TransmuteOptions](/api/ee-types.md#transmuteoptions-exported-type)), instead of the whole `TransmuteOptions`.
+Unlike `codeToAst`, \*\* `parse` receives [ParseOptions](/api/ee-types.md#parseoptions-exported-type) (aka the
+"parseOptions" property of [TransmuteOptions](/api/ee-types.md#transmuteoptions-exported-type)), instead of the whole
+`TransmuteOptions`.
+
+> Important: **`parse` doesn't wrap the resulting AST using recast**, so code
+> style and formatting changes are not tracked. For this reason, you should
+> probably use `codeToAst` (or `transmute`) instead or `parse`.
 
 If you aren't sure whether to use `parse` or `codeToAst`, use `codeToAst`.
 
