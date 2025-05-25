@@ -1,15 +1,12 @@
 {
   "AST": "/api/ee-types.md#ast-exported-type",
-  "astToCode": "/api/index.md#asttocode-exported-function",
-  "codeToAst": "/api/index.md#codetoast-exported-codetoast",
   "parse": "/api/index.md#parse-exported-function",
-  "ParseOptions": "/api/ee-types.md#parseoptions-exported-type",
+  "Parse": "/api/index.md#parse-exported-interface",
   "print": "/api/index.md#print-exported-function",
-  "PrintOptions": "/api/ee-types.md#printoptions-exported-type",
   "transmute": "/api/index.md#transmute-exported-function",
   "Transmute": "/api/index.md#transmute-exported-interface",
-  "TransmuteOptions": "/api/ee-types.md#transmuteoptions-exported-type",
-  "TransmuteResult": "/api/ee-types.md#transmuteresult-exported-type",
+  "Options": "/api/ee-types.md#options-exported-type",
+  "Result": "/api/ee-types.md#result-exported-type",
   "clone": "/api/utils.md#clone-exported-function",
   "hasShape": "/api/utils.md#hasshape-exported-function"
 }

@@ -1,14 +1,9 @@
 import traverse from "@babel/traverse";
 import template from "@babel/template";
 import * as types from "./types-ns";
-import {
-  AST,
-  TransmuteOptions,
-  ParseOptions,
-  PrintOptions,
-  TransmuteResult,
-} from "./ee-types";
-import * as printer from "./printer";
+import { AST, Options, Result } from "./ee-types";
+import { parse, Parse } from "./parser";
+import { print } from "./printer";
 import { clone, hasShape } from "./utils";
 /**
  * The transmute function; star of the library. See {@link Transmute}.
@@ -23,150 +18,99 @@ export interface Transmute {
    * expected to mutate the AST somehow.
    *
    * Once the Promise returned by `transform` has resolved, it converts the AST
-   * back into a string, and returns you a {@link TransmuteResult}, which has
+   * back into a string, and returns you a {@link Result}, which has
    * the transformed string on it as its `code` property.
    */
-  (
-    code: string,
-    transform: (ast: AST) => Promise<void>,
-  ): Promise<TransmuteResult>;
+  (code: string, transform: (ast: AST) => Promise<void>): Promise<Result>;
   /**
    * Parses `code` into an AST, then passes that to `transform`, which is
    * expected to mutate the AST somehow.
    *
    * Once the Promise returned by `transform` has resolved, it converts the AST
-   * back into a string, and returns you a {@link TransmuteResult}, which has
+   * back into a string, and returns you a {@link Result}, which has
    * the transformed string on it as its `code` property.
    *
    * The contents of `options` will determine what syntax options to use to
    * parse the code, and whether to consume/generate source maps. See
-   * {@link TransmuteOptions} for more details.
+   * {@link Options} for more details.
    */
   (
     code: string,
-    options: TransmuteOptions,
+    options: Options,
     transform: (ast: types.Node) => Promise<void>,
-  ): Promise<TransmuteResult>;
+  ): Promise<Result>;
   /**
    * Parses `code` into an AST, then passes that to `transform`, which
    * is expected to mutate the AST somehow.
    *
    * Then, it converts the AST back into a string, and returns you a
-   * {@link TransmuteResult}, which has the transformed string on it as its
+   * {@link Result}, which has the transformed string on it as its
    * `code` property.
    */
-  (code: string, transform: (ast: AST) => void): TransmuteResult;
+  (code: string, transform: (ast: AST) => void): Result;
   /**
    * Parses `code` into an AST, then passes that to `transform`, which is
    * expected to mutate the AST somehow.
    *
    * Then, it converts the AST back into a string, and returns you a
-   * {@link TransmuteResult}, which has the transformed string on it as its
+   * {@link Result}, which has the transformed string on it as its
    * `code` property.
    *
    * The contents of `options` will determine what syntax options to use to
    * parse the code, and whether to consume/generate source maps. See
-   * {@link TransmuteOptions} for more details.
+   * {@link Options} for more details.
    */
   (
     code: string,
-    options: TransmuteOptions,
+    options: Options,
     transform: (ast: types.Node) => void,
-  ): TransmuteResult;
+  ): Result;
 }
-/**
- * Converts an AST back into a code string.
- *
- * This function is used internally by {@link transmute}.
- *
- * The options parameter works the same as the options parameter for `transmute`.
- */
-export declare function astToCode(
-  ast: types.Node,
-  options?: TransmuteOptions,
-): TransmuteResult;
-/**
- * The various call signatures of the {@link codeToAst} function. When option
- * `expression` is true, it returns a `types.Node`, but when it isn't, it
- * returns an `AST`, which is an alias for `types.File`.
- */
-interface CodeToAst {
-  (code: string): AST;
-  (
-    code: string,
-    options: TransmuteOptions & {
-      expression: true;
-    },
-  ): types.Node;
-  (
-    code: string,
-    options: TransmuteOptions & {
-      expression: false;
-    },
-  ): AST;
-  (
-    code: string,
-    options: TransmuteOptions & {
-      expression: boolean;
-    },
-  ): types.Node;
-  (code: string, options: TransmuteOptions): AST;
-}
-/**
- * Parses a JavaScript/TypeScript code string into an AST.
- *
- * This function is used internally by {@link transmute}.
- *
- * The options parameter works the same as the options parameter for `transmute`.
- */
-export declare const codeToAst: CodeToAst;
 export {
-  /** Re-export of `@babel/traverse`'s default export. */
+  /**
+   * Parser (code-to-AST) function used by `transmute`. See {@link parse}.
+   */
+  parse,
+  /**
+   * Type of the `parse` function. See {@link Parse}.
+   */
+  Parse,
+  /**
+   * Printer (AST-to-code) function used by `transmute`. See {@link print}.
+   */
+  print,
+  /**
+   * Re-export of `@babel/traverse`'s default export.
+   */
   traverse,
-  /** Contains the named exports of both `@babel/types` and `@babel/traverse`. */
+  /**
+   * Contains the named exports of both `@babel/types` and `@babel/traverse`.
+   */
   types,
-  /** Re-export of `@babel/template`'s default export. */
+  /**
+   * Re-export of `@babel/template`'s default export.
+   */
   template,
-  /** Type returned by {@link codeToAst}. See {@link AST}. */
+  /**
+   * Type returned by {@link parse}. See {@link AST}.
+   */
   type AST,
-  /** Type used by {@link transmute}. See {@link TransmuteOptions}. */
-  type TransmuteOptions,
-  /** Type used by {@link parse} and {@link TransmuteOptions}. See {@link ParseOptions}. */
-  type ParseOptions,
-  /** Type used by {@link print} and {@link TransmuteOptions}. See {@link PrintOptions}. */
-  type PrintOptions,
-  /** Type returned by {@link transmute}. See {@link TransmuteResult}. */
-  type TransmuteResult,
-  /** AST node cloner utility function. See {@link clone}. */
+  /**
+   * Type used by {@link transmute}, {@link parse}, and {@link print}. See
+   * {@link Options}.
+   */
+  type Options,
+  /**
+   * Type returned by {@link print}. See {@link Result}.
+   */
+  type Result,
+  /**
+   * AST node cloner utility function. See {@link clone}.
+   */
   clone,
-  /** Deep object property comparison checker utility function. See {@link hasShape}. */
+  /**
+   * Deep object property comparison checker utility function. See
+   * {@link hasShape}.
+   */
   hasShape,
 };
-/**
- * A version of the function {@link codeToAst} exported as the named export
- * 'parse', suitable for use with AST tooling that lets you specify a parser
- * module.
- *
- * Unlike `codeToAst`, ** `parse` receives {@link ParseOptions} (aka the
- * "parseOptions" property of {@link TransmuteOptions}), instead of the whole
- * `TransmuteOptions`.
- *
- * > Important: **`parse` doesn't wrap the resulting AST using recast**, so code
- * style and formatting changes are not tracked. For this reason, you should
- * probably use `codeToAst` (or `transmute`) instead or `parse`.
- *
- * If you aren't sure whether to use `parse` or `codeToAst`, use `codeToAst`.
- */
-export declare const parse: (source: string, options?: ParseOptions) => any;
-/**
- * The version of the function {@link astToCode} exported as the named export
- * 'print', suitable for use with AST tooling that lets you specify a printer
- * module.
- *
- * Unlike `astToCode`, `print` receives {@link PrintOptions} (aka the
- * "printOptions" property of {@link TransmuteOptions}), instead of the whole
- * `TransmuteOptions`.
- *
- * If you aren't sure whether to use `print` or `astToCode`, use `astToCode`.
- */
-export declare const print: typeof printer.print;

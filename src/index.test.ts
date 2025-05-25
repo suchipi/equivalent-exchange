@@ -5,8 +5,6 @@ import {
   traverse,
   types,
   clone,
-  codeToAst,
-  astToCode,
   hasShape,
   parse,
   print,
@@ -156,7 +154,7 @@ test("with jsx syntax", async () => {
 });
 
 test("clone helper", async () => {
-  const ast = codeToAst("console.log(   'hi there!' );");
+  const ast = parse("console.log(   'hi there!' );");
   const otherAst = clone(ast);
 
   expect(otherAst).not.toBe(ast);
@@ -166,32 +164,32 @@ test("clone helper", async () => {
   expect(ast.program).not.toBe(otherAst.program);
   expect(ast.program.body[0]).not.toBe(otherAst.program.body[0]);
 
-  expect(astToCode(ast).code).toMatchInlineSnapshot(
+  expect(print(ast).code).toMatchInlineSnapshot(
     "\"console.log(   'hi there!' );\"",
   );
 
   // recast-tracked formatting is lost. I think I don't care?
-  expect(astToCode(otherAst).code).toMatchInlineSnapshot(
+  expect(print(otherAst).code).toMatchInlineSnapshot(
     '"console.log("hi there!");"',
   );
 });
 
 test("duplicate child", async () => {
-  const ast = codeToAst("console.log( hi ) ;");
+  const ast = parse("console.log( hi ) ;");
 
   ast.program.body.push(ast.program.body[0]);
 
-  expect(astToCode(ast).code).toMatchInlineSnapshot(
+  expect(print(ast).code).toMatchInlineSnapshot(
     '"console.log( hi ) ;console.log( hi ) ;"',
   );
 });
 
 test("cloned duplicate child", async () => {
-  const ast = codeToAst("console.log( hi ) ;");
+  const ast = parse("console.log( hi ) ;");
 
   ast.program.body.push(clone(ast.program.body[0]));
 
-  expect(astToCode(ast).code).toMatchInlineSnapshot(
+  expect(print(ast).code).toMatchInlineSnapshot(
     '"console.log( hi ) ;console.log(hi);"',
   );
 });
@@ -199,21 +197,21 @@ test("cloned duplicate child", async () => {
 // is this a recast bug? I don't like this, but I don't know where
 // the right place to fix it is. Documenting the behavior here for now.
 test("dangerous duplicate child", async () => {
-  const ast = codeToAst(" [ 1] ");
+  const ast = parse(" [ 1] ");
 
   ast.program.body.push(ast.program.body[0]);
 
-  expect(astToCode(ast).code).toMatchInlineSnapshot('" [ 1][ 1] "');
+  expect(print(ast).code).toMatchInlineSnapshot('" [ 1][ 1] "');
 });
 
 // is this a recast bug? I don't like this, but I don't know where
 // the right place to fix it is. Documenting the behavior here for now.
 test("dangerous cloned duplicate child", async () => {
-  const ast = codeToAst(" [ 1] ");
+  const ast = parse(" [ 1] ");
 
   ast.program.body.push(clone(ast.program.body[0]));
 
-  expect(astToCode(ast).code).toMatchInlineSnapshot('" [ 1][1]; "');
+  expect(print(ast).code).toMatchInlineSnapshot('" [ 1][1]; "');
 });
 
 test("hasShape", async () => {
@@ -266,19 +264,19 @@ test("hasShape", async () => {
   }
 
   {
-    const input = codeToAst("hi;");
+    const input = parse("hi;");
     const shape = { type: "File", program: { type: "Program" } };
     expect(hasShape(input, shape)).toBe(true);
   }
 
   {
-    const input = codeToAst("hi;");
+    const input = parse("hi;");
     const shape = { type: "File", program: { type: "Not a Program" } };
     expect(hasShape(input, shape)).toBe(false);
   }
 
   {
-    const input = codeToAst("hi;") as types.Node;
+    const input = parse("hi;") as types.Node;
 
     const check = (_: types.File) => {};
 
@@ -292,10 +290,10 @@ test("hasShape", async () => {
   }
 });
 
-test("astToCode with non-file (simple)", () => {
-  const ast = codeToAst("hi;");
+test("print with non-file (simple)", () => {
+  const ast = parse("hi;");
   const node = (ast as any).program.body[0].expression;
-  const result = astToCode(node);
+  const result = print(node);
   expect(result).toMatchInlineSnapshot(`
     {
       "code": "hi",
@@ -304,8 +302,8 @@ test("astToCode with non-file (simple)", () => {
   `);
 });
 
-test("astToCode with non-file (complicated)", () => {
-  const ast = codeToAst(
+test("print with non-file (complicated)", () => {
+  const ast = parse(
     "                console.log(  hi, 2 + some `one ${\noutThere}\n              \t \t`  )  ;\n\tvar theBite = 87;",
   ) as types.File;
 
@@ -324,11 +322,11 @@ test("astToCode with non-file (complicated)", () => {
     .init as any;
 
   const result = {
-    callExpression: astToCode(callExpression),
-    hi: astToCode(hi),
-    binaryExpression: astToCode(binaryExpression),
-    variableDeclaration: astToCode(variableDeclaration),
-    theBite: astToCode(theBite),
+    callExpression: print(callExpression),
+    hi: print(hi),
+    binaryExpression: print(binaryExpression),
+    variableDeclaration: print(variableDeclaration),
+    theBite: print(theBite),
   };
 
   expect(result).toMatchInlineSnapshot(`
@@ -361,29 +359,29 @@ test("astToCode with non-file (complicated)", () => {
   `);
 });
 
-test("codeToAst as expression", () => {
-  const node = codeToAst("hi", { expression: true });
+test("parse as expression", () => {
+  const node = parse("hi", { parseOptions: { expression: true } });
   expect(node.type).toBe("Identifier");
   expect((node as any).name).toBe("hi");
 });
 
-test("codeToAst as expression but it's a statement", () => {
+test("parse as expression but it's a statement", () => {
   expect(() => {
-    codeToAst("hi;", { expression: true });
+    parse("hi;", { parseOptions: { expression: true } });
   }).toThrowErrorMatchingInlineSnapshot(
     `[SyntaxError: Unexpected token, expected "," (1:3)]`,
   );
 });
 
 test("parse function (basic)", () => {
-  const node = parse("hi");
+  const node = parse("hi") as any;
   expect(node.type).toBe("File");
   expect(node.program.body[0].expression.type).toBe("Identifier");
   expect(node.program.body[0].expression.name).toBe("hi");
 });
 
 test("parse function (jsx)", () => {
-  const node = parse("<a />");
+  const node = parse("<a />") as any;
   expect(node.type).toBe("File");
   expect(node.program.body[0].expression.type).toBe("JSXElement");
 });
@@ -392,7 +390,7 @@ test("parse function (typescript)", () => {
   const node = parse("const a = (something: string): string => something;");
   expect(node.type).toBe("File");
   expect(node.program.body[0].type).toBe("VariableDeclaration");
-  const decl = node.program.body[0];
+  const decl = node.program.body[0] as any;
   expect(decl.declarations[0].init.type).toBe("ArrowFunctionExpression");
   const arrowFnExpr = decl.declarations[0].init;
   expect(arrowFnExpr.returnType.typeAnnotation.type).toBe("TSStringKeyword");
@@ -401,11 +399,13 @@ test("parse function (typescript)", () => {
 test("parse function (typescript-dts)", () => {
   // Note: without dts option, this fails with "Missing initializer in const declaration."
   const node = parse("export const a: string;", {
-    typeSyntax: "typescript-dts",
+    parseOptions: {
+      typeSyntax: "typescript-dts",
+    },
   });
   expect(node.type).toBe("File");
   expect(node.program.body[0].type).toBe("ExportNamedDeclaration");
-  const exportDecl = node.program.body[0];
+  const exportDecl = node.program.body[0] as any;
   expect(exportDecl.declaration.type).toBe("VariableDeclaration");
   const variableDeclaration = exportDecl.declaration;
   expect(variableDeclaration.declarations[0].type).toBe("VariableDeclarator");
@@ -422,11 +422,13 @@ test("parse function (typescript-dts)", () => {
 
 test("parse function (flow)", () => {
   const node = parse("const a = (something: string): string => something;", {
-    typeSyntax: "flow",
+    parseOptions: {
+      typeSyntax: "flow",
+    },
   });
   expect(node.type).toBe("File");
   expect(node.program.body[0].type).toBe("VariableDeclaration");
-  const decl = node.program.body[0];
+  const decl = node.program.body[0] as any;
   expect(decl.declarations[0].init.type).toBe("ArrowFunctionExpression");
   const arrowFnExpr = decl.declarations[0].init;
   expect(arrowFnExpr.returnType.typeAnnotation.type).toBe(
@@ -444,17 +446,19 @@ test("parse function (JSX implicitly enabled)", () => {
 
 test("parse function (JSX explicitly enabled)", () => {
   expect(() => {
-    parse("const a = <string>45;", { jsxEnabled: true });
+    parse("const a = <string>45;", { parseOptions: { jsxEnabled: true } });
   }).toThrowErrorMatchingInlineSnapshot(
     `[SyntaxError: Unterminated JSX contents. (1:18)]`,
   );
 });
 
 test("parse function (JSX explicitly disabled)", () => {
-  const node = parse("const a = <string>45;", { jsxEnabled: false });
+  const node = parse("const a = <string>45;", {
+    parseOptions: { jsxEnabled: false },
+  });
   expect(node.type).toBe("File");
   expect(node.program.body[0].type).toBe("VariableDeclaration");
-  const decl = node.program.body[0];
+  const decl = node.program.body[0] as any;
   expect(decl.declarations[0].init.type).toBe("TSTypeAssertion");
   const init = decl.declarations[0].init;
   expect(init.typeAnnotation.type).toBe("TSStringKeyword");
@@ -464,7 +468,9 @@ test("parse function (JSX explicitly disabled)", () => {
 test("parse function (v8Intrinsic enabled without changing pipeline syntax)", () => {
   expect(() => {
     parse("const a = %Something()", {
-      v8Intrinsic: true,
+      parseOptions: {
+        v8Intrinsic: true,
+      },
     });
   }).toThrowErrorMatchingInlineSnapshot(
     `[Error: Babel disallows using both v8Intrinsic and Hack-style pipes together. \`equivalent-exchange\` has hack-style pipeline syntax enabled by default. Either disable the 'v8Intrinsic' option or change the 'pipelineSyntax' option to a different value, such as 'none' (it defaults to 'hack').]`,
@@ -473,11 +479,13 @@ test("parse function (v8Intrinsic enabled without changing pipeline syntax)", ()
 
 test("parse function (v8Intrinsic enabled, pipeline syntax disabled)", () => {
   const node = parse("const a = %Something()", {
-    v8Intrinsic: true,
-    pipelineSyntax: "none",
+    parseOptions: {
+      v8Intrinsic: true,
+      pipelineSyntax: "none",
+    },
   });
   expect(node.program.body[0].type).toBe("VariableDeclaration");
-  const decl = node.program.body[0];
+  const decl = node.program.body[0] as any;
   expect(decl.declarations[0].init.type).toBe("CallExpression");
   expect(decl.declarations[0].init.callee.type).toBe("V8IntrinsicIdentifier");
   expect(decl.declarations[0].init.callee.name).toBe("Something");
@@ -485,11 +493,13 @@ test("parse function (v8Intrinsic enabled, pipeline syntax disabled)", () => {
 
 test("parse function (v8Intrinsic enabled, pipeline syntax changed to fsharp)", () => {
   const node = parse("const a = %Something()", {
-    v8Intrinsic: true,
-    pipelineSyntax: "fsharp",
+    parseOptions: {
+      v8Intrinsic: true,
+      pipelineSyntax: "fsharp",
+    },
   });
   expect(node.program.body[0].type).toBe("VariableDeclaration");
-  const decl = node.program.body[0];
+  const decl = node.program.body[0] as any;
   expect(decl.declarations[0].init.type).toBe("CallExpression");
   expect(decl.declarations[0].init.callee.type).toBe("V8IntrinsicIdentifier");
   expect(decl.declarations[0].init.callee.name).toBe("Something");
@@ -498,7 +508,9 @@ test("parse function (v8Intrinsic enabled, pipeline syntax changed to fsharp)", 
 test("parse function (placeholders enabled without changing pipeline syntax)", () => {
   expect(() => {
     parse("const a = %%b%%", {
-      placeholders: true,
+      parseOptions: {
+        placeholders: true,
+      },
     });
   }).toThrowErrorMatchingInlineSnapshot(
     `[Error: Babel disallows using both placeholders and Hack-style pipes together. \`equivalent-exchange\` has hack-style pipeline syntax enabled by default. Either disable the 'placeholders' option or change the 'pipelineSyntax' option to a different value, such as 'none' (it defaults to 'hack').]`,
@@ -507,11 +519,13 @@ test("parse function (placeholders enabled without changing pipeline syntax)", (
 
 test("parse function (placeholders enabled, pipeline syntax disabled)", () => {
   const node = parse("const a = %%b%%", {
-    placeholders: true,
-    pipelineSyntax: "none",
+    parseOptions: {
+      placeholders: true,
+      pipelineSyntax: "none",
+    },
   });
   expect(node.program.body[0].type).toBe("VariableDeclaration");
-  const decl = node.program.body[0];
+  const decl = node.program.body[0] as any;
   expect(decl.declarations[0].init.type).toBe("Placeholder");
   const placeholder = decl.declarations[0].init;
   expect(placeholder.name.type).toBe("Identifier");
@@ -520,11 +534,13 @@ test("parse function (placeholders enabled, pipeline syntax disabled)", () => {
 
 test("parse function (placeholders enabled, pipeline syntax changed to fsharp)", () => {
   const node = parse("const a = %%b%%", {
-    placeholders: true,
-    pipelineSyntax: "fsharp",
+    parseOptions: {
+      placeholders: true,
+      pipelineSyntax: "fsharp",
+    },
   });
   expect(node.program.body[0].type).toBe("VariableDeclaration");
-  const decl = node.program.body[0];
+  const decl = node.program.body[0] as any;
   expect(decl.declarations[0].init.type).toBe("Placeholder");
   const placeholder = decl.declarations[0].init;
   expect(placeholder.name.type).toBe("Identifier");
@@ -534,8 +550,10 @@ test("parse function (placeholders enabled, pipeline syntax changed to fsharp)",
 test("parse function (placeholders enabled, v8 intrinsics enabled)", () => {
   expect(() => {
     parse("const a = %Something(%%b%%)", {
-      placeholders: true,
-      v8Intrinsic: true,
+      parseOptions: {
+        placeholders: true,
+        v8Intrinsic: true,
+      },
     });
   }).toThrowErrorMatchingInlineSnapshot(
     `[Error: Babel disallows using both v8Intrinsic and placeholders together at the same time. Either disable the 'v8Intrinsic' option or disable the 'placeholders' option.]`,
@@ -556,7 +574,7 @@ test("print function (different methods)", () => {
     "recast.print",
     "recast.prettyPrint",
   ] as const) {
-    const result = print(node, { printMethod });
+    const result = print(node, { printOptions: { printMethod } });
     expect(result.code).toBe("hi");
   }
 });
@@ -565,7 +583,7 @@ test("print function (source maps, recast.print)", () => {
   const fileName = "myfile.js";
   const sourceMapFileName = "myfile.js.map";
 
-  const ast = codeToAst("console.log(3);", { fileName, sourceMapFileName });
+  const ast = parse("console.log(3);", { fileName, sourceMapFileName });
 
   traverse(ast, {
     Identifier(nodePath) {
@@ -577,7 +595,9 @@ test("print function (source maps, recast.print)", () => {
   });
 
   const result = print(ast, {
-    printMethod: "recast.print",
+    printOptions: {
+      printMethod: "recast.print",
+    },
     fileName,
     sourceMapFileName,
   });
@@ -604,7 +624,7 @@ test("print function (source maps, recast.prettyPrint)", () => {
   const fileName = "myfile.js";
   const sourceMapFileName = "myfile.js.map";
 
-  const ast = codeToAst("console.log(3);", { fileName, sourceMapFileName });
+  const ast = parse("console.log(3);", { fileName, sourceMapFileName });
 
   traverse(ast, {
     Identifier(nodePath) {
@@ -616,7 +636,9 @@ test("print function (source maps, recast.prettyPrint)", () => {
   });
 
   const result = print(ast, {
-    printMethod: "recast.prettyPrint",
+    printOptions: {
+      printMethod: "recast.prettyPrint",
+    },
     fileName,
     sourceMapFileName,
   });
@@ -632,7 +654,7 @@ test("print function (source maps, @babel/generator)", () => {
   const fileName = "myfile.js";
   const sourceMapFileName = "myfile.js.map";
 
-  const ast = codeToAst("console.log(3);", { fileName, sourceMapFileName });
+  const ast = parse("console.log(3);", { fileName, sourceMapFileName });
 
   traverse(ast, {
     Identifier(nodePath) {
@@ -644,7 +666,9 @@ test("print function (source maps, @babel/generator)", () => {
   });
 
   const result = print(ast, {
-    printMethod: "@babel/generator",
+    printOptions: {
+      printMethod: "@babel/generator",
+    },
     fileName,
     sourceMapFileName,
   });
@@ -670,4 +694,59 @@ test("print function (source maps, @babel/generator)", () => {
       },
     }
   `);
+});
+
+// This is here to help people upgrade across the breaking change where we
+// changed what print and parse accept.
+test("parse function throws if you pass it parseOptions directly", () => {
+  const fileName = "myfile.js";
+  const sourceMapFileName = "myfile.js.map";
+
+  for (const parseOptionsKey of [
+    "typeSyntax",
+    "decoratorSyntax",
+    "pipelineSyntax",
+    "hackPipelineTopicToken",
+    "jsxEnabled",
+    "v8Intrinsic",
+    "placeholders",
+    "expression",
+    "skipRecast",
+  ]) {
+    expect(() => {
+      parse("console.log(3);", {
+        fileName,
+        sourceMapFileName,
+        [parseOptionsKey]: true,
+      });
+    }).toThrowError();
+  }
+});
+
+// This is here to help people upgrade across the breaking change where we
+// changed what print and parse accept.
+test("print function throws if you pass it printOptions directly", () => {
+  const fileName = "myfile.js";
+  const sourceMapFileName = "myfile.js.map";
+
+  const ast = parse("console.log(3);", { fileName, sourceMapFileName });
+
+  traverse(ast, {
+    Identifier(nodePath) {
+      const node = nodePath.node;
+      if (node.name === "log") {
+        nodePath.replaceWith(types.identifier("pog"));
+      }
+    },
+  });
+
+  expect(() => {
+    print(ast, {
+      printMethod: "@babel/generator",
+      fileName,
+      sourceMapFileName,
+    } as any);
+  }).toThrowErrorMatchingInlineSnapshot(
+    `[Error: \`print\` function received a legacy PrintOptions, but we want an Options. The following property should be in a sub-object under \`printOptions\`: printMethod]`,
+  );
 });

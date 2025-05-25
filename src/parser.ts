@@ -1,17 +1,68 @@
 import * as babelParser from "@babel/parser";
-import { ParseOptions } from "./ee-types";
+import * as recast from "recast";
+import * as types from "./types-ns";
+import { AST, Options } from "./ee-types";
+
+/**
+ * The various call signatures of the {@link parse} function. When option
+ * `parseOptions.expression` is true, it returns a `types.Node`, but when it
+ * isn't, it returns an `AST`, which is an alias for `types.File`.
+ */
+export interface Parse {
+  (code: string): AST;
+  (
+    code: string,
+    options: Options & { parseOptions: { expression: true } },
+  ): types.Node;
+  (
+    code: string,
+    options: Options & { parseOptions: { expression: false } },
+  ): AST;
+  (
+    code: string,
+    options: Options & { parseOptions: { expression: boolean } },
+  ): types.Node;
+  (code: string, options: Options): AST;
+}
 
 /**
  * Parses a JavaScript/TypeScript code string into an AST.
+ *
+ * This function is used internally by {@link transmute}.
+ *
+ * The options parameter is the same type as the options parameter for `transmute`.
  */
-export const parse = (source: string, options: ParseOptions = {}): any => {
-  const typeSyntax = options.typeSyntax || "typescript";
-  const decoratorSyntax = options.decoratorSyntax || "legacy";
-  const pipelineSyntax = options.pipelineSyntax || "hack";
-  const hackPipelineTopicToken = options.hackPipelineTopicToken || "%";
-  const jsxEnabled = options.jsxEnabled !== false;
-  const v8Intrinsic = options.v8Intrinsic ?? false;
-  const placeholders = options.placeholders ?? false;
+export const parse: Parse = (source: string, options?: Options): any => {
+  if (options) {
+    const maybeWrongOpts = options as any;
+    for (const parseOptionsKey of [
+      "typeSyntax",
+      "decoratorSyntax",
+      "pipelineSyntax",
+      "hackPipelineTopicToken",
+      "jsxEnabled",
+      "v8Intrinsic",
+      "placeholders",
+      "expression",
+      "skipRecast",
+    ]) {
+      if (parseOptionsKey in maybeWrongOpts) {
+        throw new Error(
+          "`parse` function received a legacy ParseOptions, but we want an Options. The following property should be in a sub-object under `parseOptions`: " +
+            parseOptionsKey,
+        );
+      }
+    }
+  }
+
+  const typeSyntax = options?.parseOptions?.typeSyntax || "typescript";
+  const decoratorSyntax = options?.parseOptions?.decoratorSyntax || "legacy";
+  const pipelineSyntax = options?.parseOptions?.pipelineSyntax || "hack";
+  const hackPipelineTopicToken =
+    options?.parseOptions?.hackPipelineTopicToken || "%";
+  const jsxEnabled = options?.parseOptions?.jsxEnabled !== false;
+  const v8Intrinsic = options?.parseOptions?.v8Intrinsic ?? false;
+  const placeholders = options?.parseOptions?.placeholders ?? false;
 
   const plugins: babelParser.ParserOptions["plugins"] = [
     "asyncDoExpressions",
@@ -103,14 +154,48 @@ export const parse = (source: string, options: ParseOptions = {}): any => {
     ]);
   }
 
-  return babelParser.parse(source, {
-    sourceFilename: options.fileName,
-    allowAwaitOutsideFunction: true,
-    allowImportExportEverywhere: true,
-    allowReturnOutsideFunction: true,
-    allowSuperOutsideMethod: true,
-    allowUndeclaredExports: true,
-    tokens: true,
-    plugins,
-  });
+  const codeToParse = options?.parseOptions?.expression
+    ? `(${source})`
+    : source;
+
+  function doBabelParse(codeForBabel: string) {
+    const result = babelParser.parse(codeForBabel, {
+      sourceFilename: options?.fileName,
+      allowAwaitOutsideFunction: true,
+      allowImportExportEverywhere: true,
+      allowReturnOutsideFunction: true,
+      allowSuperOutsideMethod: true,
+      allowUndeclaredExports: true,
+      tokens: true,
+      plugins,
+    });
+    return result;
+  }
+
+  let ast: babelParser.ParseResult;
+  if (options?.parseOptions?.skipRecast) {
+    ast = doBabelParse(source);
+  } else {
+    ast = recast.parse(codeToParse, {
+      sourceFileName: options?.fileName,
+      inputSourceMap: options?.inputSourceMap,
+      parser: {
+        parse(sourceFromRecast: string) {
+          return doBabelParse(sourceFromRecast);
+        },
+      },
+    });
+  }
+
+  if (options?.parseOptions?.expression) {
+    if (!types.isExpressionStatement(ast.program.body[0])) {
+      throw new Error(
+        "Attempted to parse code as an expression, but the resulting AST's first statement wasn't an ExpressionStatement.",
+      );
+    }
+
+    return ast.program.body[0].expression;
+  }
+
+  return ast;
 };

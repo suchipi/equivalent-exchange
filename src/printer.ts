@@ -1,20 +1,26 @@
 import * as babelGenerator from "@babel/generator";
 import * as types from "./types-ns";
 import * as recast from "recast";
-import { PrintOptions, TransmuteResult } from "./ee-types";
+import { Result, Options } from "./ee-types";
 
 /**
  * Converts an AST back into a code string.
  *
- * This function is used internally by `transmute`.
+ * This function is used internally by {@link transmute}.
  *
- * The options parameter works the same as the options parameter for `transmute`.
+ * The options parameter is the same type as the options parameter for `transmute`.
  */
-export function print(
-  ast: types.Node,
-  options: PrintOptions = {},
-): TransmuteResult {
-  const printMethod = options.printMethod || "recast.print";
+export function print(ast: types.Node, options?: Options): Result {
+  if (options) {
+    const maybeWrongOpts = options as any;
+    if ("printMethod" in maybeWrongOpts) {
+      throw new Error(
+        "`print` function received a legacy PrintOptions, but we want an Options. The following property should be in a sub-object under `printOptions`: printMethod",
+      );
+    }
+  }
+
+  const printMethod = options?.printOptions?.printMethod || "recast.print";
 
   switch (printMethod) {
     case "recast.print":
@@ -22,7 +28,7 @@ export function print(
       const printFunction =
         printMethod === "recast.print" ? recast.print : recast.prettyPrint;
 
-      if (options.fileName && options.sourceMapFileName) {
+      if (options?.fileName && options.sourceMapFileName) {
         const { code, map } = printFunction.call(recast, ast, {
           sourceFileName: options.fileName,
           sourceMapName: options.sourceMapFileName,
@@ -36,11 +42,11 @@ export function print(
 
     case "@babel/generator": {
       const { code, map } = babelGenerator.default(ast, {
-        sourceFileName: options.fileName,
-        sourceMaps: Boolean(options.sourceMapFileName),
+        sourceFileName: options?.fileName,
+        sourceMaps: Boolean(options?.sourceMapFileName),
       });
 
-      if (options.fileName && options.sourceMapFileName) {
+      if (options?.fileName && options.sourceMapFileName) {
         return { code, map: map || null };
       } else {
         return { code, map: null };
