@@ -1,6 +1,6 @@
 # equivalent-exchange
 
-Transmute one JavaScript string into another by way of mutating its AST. Powered by [babel](https://babeljs.io/) and [recast](https://www.npmjs.com/package/recast).
+Suchipi's flexible JS/TS codemodding/refactoring toolkit, powered by [Babel](https://babeljs.io/) and [Recast](https://www.npmjs.com/package/recast).
 
 ## Features
 
@@ -10,26 +10,52 @@ Transmute one JavaScript string into another by way of mutating its AST. Powered
 
 ## Usage Example
 
+"Transmute" one string of code into another by using the `transmute` function:
+
 ```ts
-import { transmute, traverse, types } from "equivalent-exchange";
+import { transmute } from "equivalent-exchange";
 
 const someJs = "console.log('hi!');";
 
 const result = transmute(someJs, (ast) => {
-  traverse(ast, {
-    StringLiteral(path) {
-      const { node } = path;
-      if (node.value === "hi!") {
-        path.replaceWith(types.stringLiteral("goodbye!"));
-      }
-    },
-  });
+  // Within this callback, we mutate the AST as desired for the
+  // codemod/refactor.
+  // Use https://astexplorer.net/ to see what this tree
+  // structure looks like!
+  ast.program.body[0].expression.callee.arguments[0].value = "goodbye!";
 });
 
 console.log(result.code); // console.log("goodbye!");
 ```
 
-Note that you don't have to use the provided `traverse` or `types`; you can mutate the ast using whatever traversal method you prefer.
+For more flexible codemods, use the included utilities:
+
+```ts
+import { transmute, traverse, types } from "equivalent-exchange";
+
+// `traverse` and `types` come from Babel!
+
+const someJs = "console.log('hi!', 'hi again!');";
+
+const result = transmute(someJs, (ast) => {
+  // Walk the tree...
+  traverse(ast, {
+    // And for every StringLiteral node we find...
+    StringLiteral(path) {
+      const { node } = path;
+      // If it starts with 'hi'...
+      if (node.value.startsWith("hi")) {
+        const newValue = node.value.replace(/^hi/, "bye");
+        const newNode = types.stringLiteral(newValue);
+        // Change 'hi' to 'bye'
+        path.replaceWith(newNode);
+      }
+    },
+  });
+});
+
+console.log(result.code); // "console.log('bye!', 'bye again!');"
+```
 
 ## API Documentation
 
