@@ -1,8 +1,8 @@
 {
   "AST": "/api/ee-types.md#ast-exported-type",
-  "parse": "/api/index.md#parse-exported-function",
-  "Parse": "/api/index.md#parse-exported-interface",
-  "print": "/api/index.md#print-exported-function",
+  "parse": "/api/parser.md#parse-exported-function",
+  "Parse": "/api/parser.md#parse-exported-interface",
+  "print": "/api/printer.md#print-exported-function",
   "transmute": "/api/index.md#transmute-exported-function",
   "Transmute": "/api/index.md#transmute-exported-interface",
   "Options": "/api/ee-types.md#options-exported-type",

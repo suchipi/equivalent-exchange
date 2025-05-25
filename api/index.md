@@ -89,7 +89,7 @@ parse the code, and whether to consume/generate source maps. See
 
 # parse (exported binding)
 
-Parser (code-to-AST) function used by `transmute`. See [parse](/api/index.md#parse-exported-function).
+Parser (code-to-AST) function used by `transmute`. See [parse](/api/parser.md#parse-exported-function).
 
 ```ts
 export { parse };
@@ -97,7 +97,7 @@ export { parse };
 
 # Parse (exported binding)
 
-Type of the `parse` function. See [Parse](/api/index.md#parse-exported-interface).
+Type of the `parse` function. See [Parse](/api/parser.md#parse-exported-interface).
 
 ```ts
 export { Parse };
@@ -105,7 +105,7 @@ export { Parse };
 
 # print (exported binding)
 
-Printer (AST-to-code) function used by `transmute`. See [print](/api/index.md#print-exported-function).
+Printer (AST-to-code) function used by `transmute`. See [print](/api/printer.md#print-exported-function).
 
 ```ts
 export { print };
@@ -137,7 +137,7 @@ export { template };
 
 # AST (exported type)
 
-Type returned by [parse](/api/index.md#parse-exported-function). See [AST](/api/ee-types.md#ast-exported-type).
+Type returned by [parse](/api/parser.md#parse-exported-function). See [AST](/api/ee-types.md#ast-exported-type).
 
 ```ts
 export { type AST };
@@ -145,7 +145,7 @@ export { type AST };
 
 # Options (exported type)
 
-Type used by [transmute](/api/index.md#transmute-exported-function), [parse](/api/index.md#parse-exported-function), and [print](/api/index.md#print-exported-function). See
+Type used by [transmute](/api/index.md#transmute-exported-function), [parse](/api/parser.md#parse-exported-function), and [print](/api/printer.md#print-exported-function). See
 [Options](/api/ee-types.md#options-exported-type).
 
 ```ts
@@ -154,7 +154,7 @@ export { type Options };
 
 # Result (exported type)
 
-Type returned by [print](/api/index.md#print-exported-function). See [Result](/api/ee-types.md#result-exported-type).
+Type returned by [print](/api/printer.md#print-exported-function). See [Result](/api/ee-types.md#result-exported-type).
 
 ```ts
 export { type Result };
