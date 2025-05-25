@@ -89,7 +89,7 @@ parse the code, and whether to consume/generate source maps. See
 
 # parse (exported binding)
 
-Parser (code-to-AST) function used by `transmute`. See [parse](/api/parser.md#parse-exported-function).
+Parser (code-to-AST) function used by `transmute`. See [parse](/api/parser.md#parse-exported-parse).
 
 ```ts
 export { parse };
@@ -137,7 +137,7 @@ export { template };
 
 # AST (exported type)
 
-Type returned by [parse](/api/parser.md#parse-exported-function). See [AST](/api/ee-types.md#ast-exported-type).
+Type returned by [parse](/api/parser.md#parse-exported-parse). See [AST](/api/ee-types.md#ast-exported-type).
 
 ```ts
 export { type AST };
@@ -145,7 +145,7 @@ export { type AST };
 
 # Options (exported type)
 
-Type used by [transmute](/api/index.md#transmute-exported-function), [parse](/api/parser.md#parse-exported-function), and [print](/api/printer.md#print-exported-function). See
+Type used by [transmute](/api/index.md#transmute-exported-function), [parse](/api/parser.md#parse-exported-parse), and [print](/api/printer.md#print-exported-function). See
 [Options](/api/ee-types.md#options-exported-type).
 
 ```ts

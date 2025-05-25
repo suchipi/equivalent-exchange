@@ -1,6 +1,6 @@
 # Parse (exported interface)
 
-The various call signatures of the [parse](/api/parser.md#parse-exported-function) function. When option
+The various call signatures of the [parse](/api/parser.md#parse-exported-parse) function. When option
 `parseOptions.expression` is true, it returns a `types.Node`, but when it
 isn't, it returns an `AST`, which is an alias for `types.File`.
 

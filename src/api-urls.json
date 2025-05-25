@@ -1,6 +1,6 @@
 {
   "AST": "/api/ee-types.md#ast-exported-type",
-  "parse": "/api/parser.md#parse-exported-function",
+  "parse": "/api/parser.md#parse-exported-parse",
   "Parse": "/api/parser.md#parse-exported-interface",
   "print": "/api/printer.md#print-exported-function",
   "transmute": "/api/index.md#transmute-exported-function",
