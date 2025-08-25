@@ -239,6 +239,30 @@ test("clone with circular structure", async () => {
   `);
 });
 
+test("clone large ast structure", async () => {
+  const a = parse(
+    `
+    import { something, anotherThing as potato } from "somewhere";
+
+    potato("abcd", "ef");
+
+    declare class Blah {
+      sdjfkdsf() {
+        something.blah.blah.aaaa.uhhhh.idk({
+          potato,
+          potato,
+          potato,
+        });
+      }
+    }
+    `,
+  );
+  const a2 = clone(a);
+
+  expect(a).toEqual(a2);
+  expect(a2).toBeInstanceOf(a.constructor);
+});
+
 test("hasShape", async () => {
   {
     const input = { type: "Bla", one: [1] };

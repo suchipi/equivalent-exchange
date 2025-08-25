@@ -44,7 +44,7 @@ function innerClone(cache: Map<any, any>, target: unknown): any {
   cache.set(target, copy);
   for (const key of Object.keys(target)) {
     copy[key] = innerClone(cache, target[key]);
-    cache.set(target, copy);
+    cache.set(target[key], copy[key]);
   }
 
   return copy;
