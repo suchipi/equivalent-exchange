@@ -5,26 +5,8 @@
  * This can be useful when you need to clone an AST node.
  */
 export function clone<T extends Clonable>(input: T): T {
-  if (Array.isArray(input)) {
-    const copy = new Array(input.length);
-    for (let i = 0; i < input.length; i++) {
-      copy[i] = clone(input[i]);
-    }
-    // @ts-ignore could be instantiated with different subtype
-    return copy;
-  }
-
-  if (typeof input !== "object" || input == null) {
-    return input;
-  }
-
-  const copy = Object.create(Object.getPrototypeOf(input));
-  for (const key of Object.keys(input)) {
-    copy[key] = clone(input[key]);
-  }
-
-  // @ts-ignore could be instantiated with different subtype
-  return copy;
+  const cache = new Map<any, any>();
+  return innerClone(cache, input);
 }
 
 /** This type is used in the definition of `clone`, but is not exported. */
@@ -36,6 +18,37 @@ type Clonable =
   | undefined
   | boolean
   | Array<Clonable>;
+
+function innerClone(cache: Map<any, any>, target: unknown): any {
+  if (cache.has(target)) {
+    return cache.get(target);
+  }
+
+  // primitive or function
+  if (typeof target !== "object" || target == null) {
+    return target;
+  }
+
+  if (Array.isArray(target)) {
+    const copy = new Array(target.length);
+    cache.set(target, copy);
+    for (let i = 0; i < target.length; i++) {
+      copy[i] = innerClone(cache, target[i]);
+      cache.set(target[i], copy[i]);
+    }
+    // @ts-ignore could be instantiated with different subtype
+    return copy;
+  }
+
+  const copy = Object.create(Object.getPrototypeOf(target));
+  cache.set(target, copy);
+  for (const key of Object.keys(target)) {
+    copy[key] = innerClone(cache, target[key]);
+    cache.set(target, copy);
+  }
+
+  return copy;
+}
 
 /**
  * Utility function which checks whether `input` is a structural subset of

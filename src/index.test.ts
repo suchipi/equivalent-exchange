@@ -214,6 +214,31 @@ test("dangerous cloned duplicate child", async () => {
   expect(print(ast).code).toMatchInlineSnapshot('" [ 1][1]; "');
 });
 
+test("clone with circular structure", async () => {
+  const a: any = {
+    b: { something: "eggplant", 42: 42, Infinity },
+    c: { potato: true },
+  };
+  a.b.a = a;
+
+  const a2 = clone(a);
+
+  expect(a).toEqual(a2);
+  expect(a2).toMatchInlineSnapshot(`
+    {
+      "b": {
+        "42": 42,
+        "Infinity": Infinity,
+        "a": [Circular],
+        "something": "eggplant",
+      },
+      "c": {
+        "potato": true,
+      },
+    }
+  `);
+});
+
 test("hasShape", async () => {
   {
     const input = { type: "Bla", one: [1] };
