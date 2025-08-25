@@ -5,7 +5,7 @@
  * This can be useful when you need to clone an AST node.
  */
 export function clone<T extends Clonable>(input: T): T {
-  const cache = new WeakMap<any, any>();
+  const cache = new Map<any, any>();
   return innerClone(cache, input);
 }
 
@@ -19,14 +19,14 @@ type Clonable =
   | boolean
   | Array<Clonable>;
 
-function innerClone(cache: WeakMap<any, any>, target: unknown): any {
+function innerClone(cache: Map<any, any>, target: unknown): any {
+  if (cache.has(target)) {
+    return cache.get(target);
+  }
+
   // primitive or function
   if (typeof target !== "object" || target == null) {
     return target;
-  }
-
-  if (cache.has(target)) {
-    return cache.get(target);
   }
 
   if (Array.isArray(target)) {
@@ -34,6 +34,7 @@ function innerClone(cache: WeakMap<any, any>, target: unknown): any {
     cache.set(target, copy);
     for (let i = 0; i < target.length; i++) {
       copy[i] = innerClone(cache, target[i]);
+      cache.set(target[i], copy[i]);
     }
     // @ts-ignore could be instantiated with different subtype
     return copy;
@@ -43,6 +44,7 @@ function innerClone(cache: WeakMap<any, any>, target: unknown): any {
   cache.set(target, copy);
   for (const key of Object.keys(target)) {
     copy[key] = innerClone(cache, target[key]);
+    cache.set(target[key], copy[key]);
   }
 
   return copy;
