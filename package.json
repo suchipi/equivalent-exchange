@@ -25,21 +25,21 @@
   },
   "devDependencies": {
     "@suchipi/dtsmd": "^1.2.0",
-    "@types/node": "^22.15.21",
-    "clefairy": "^2.0.0",
+    "@types/node": "^24.3.0",
+    "clefairy": "^2.1.0",
     "glomp": "^3.1.1",
-    "nice-path": "^3.0.0",
-    "prettier": "^3.5.3",
-    "typescript": "^5.8.2",
-    "vitest": "^3.0.9"
+    "nice-path": "^3.1.0",
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
   },
   "dependencies": {
-    "@babel/core": "^7.26.10",
-    "@babel/generator": "^7.26.10",
-    "@babel/parser": "^7.26.10",
-    "@babel/template": "^7.26.9",
-    "@babel/traverse": "^7.26.10",
-    "@babel/types": "^7.26.10",
+    "@babel/core": "^7.28.3",
+    "@babel/generator": "^7.28.3",
+    "@babel/parser": "^7.28.3",
+    "@babel/template": "^7.27.2",
+    "@babel/traverse": "^7.28.3",
+    "@babel/types": "^7.28.2",
     "@types/babel__core": "^7.20.5",
     "recast": "^0.23.11"
   },
