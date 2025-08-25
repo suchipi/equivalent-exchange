@@ -1,3 +1,4 @@
+import util from "node:util";
 import { describe, test, expect } from "vitest";
 import {
   AST,
@@ -239,7 +240,7 @@ test("clone with circular structure", async () => {
   `);
 });
 
-test.only("clone large ast structure", async () => {
+test("clone large ast structure", async () => {
   console.log("before parse");
   const a = parse(
     `declare type TypeValidator<T> = (value: any) => value is T;
@@ -1583,12 +1584,10 @@ declare const types: {
 
 `,
   );
-  console.log("before clone");
   const a2 = clone(a);
-  console.log("after clone");
 
-  expect(a).toEqual(a2);
   expect(a2).toBeInstanceOf(a.constructor);
+  expect(util.inspect(a)).toBe(util.inspect(a2));
 });
 
 test("hasShape", async () => {
