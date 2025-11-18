@@ -2,6 +2,9 @@ import * as babelParser from "@babel/parser";
 import * as recast from "recast";
 import * as types from "./types-ns";
 import { AST, Options } from "./ee-types";
+import makeDebug from "debug";
+
+const debug = makeDebug("equivalent-exchange:parser");
 
 /**
  * The various call signatures of the {@link parse} function. When option
@@ -33,6 +36,7 @@ export interface Parse {
  * The options parameter is the same type as the options parameter for `transmute`.
  */
 export const parse: Parse = (source: string, options?: Options): any => {
+  debug("parse", { source, options });
   if (options) {
     const maybeWrongOpts = options as any;
     for (const parseOptionsKey of [
@@ -154,6 +158,8 @@ export const parse: Parse = (source: string, options?: Options): any => {
     ]);
   }
 
+  debug("babel plugins", plugins);
+
   const codeToParse = options?.parseOptions?.expression
     ? `(${source})`
     : source;
@@ -174,8 +180,10 @@ export const parse: Parse = (source: string, options?: Options): any => {
 
   let ast: babelParser.ParseResult;
   if (options?.parseOptions?.skipRecast) {
+    debug("skipping recast; parsing with babel only");
     ast = doBabelParse(source);
   } else {
+    debug("parsing with babel + recast");
     ast = recast.parse(codeToParse, {
       sourceFileName: options?.fileName,
       inputSourceMap: options?.inputSourceMap,
@@ -187,6 +195,7 @@ export const parse: Parse = (source: string, options?: Options): any => {
     });
   }
 
+  debug("done parsing");
   if (options?.parseOptions?.expression) {
     if (!types.isExpressionStatement(ast.program.body[0])) {
       throw new Error(

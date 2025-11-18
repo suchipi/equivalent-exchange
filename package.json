@@ -25,6 +25,7 @@
   },
   "devDependencies": {
     "@suchipi/dtsmd": "^1.2.0",
+    "@types/debug": "^4.1.12",
     "@types/node": "^24.3.0",
     "clefairy": "^2.1.0",
     "glomp": "^3.1.1",
@@ -41,6 +42,7 @@
     "@babel/traverse": "^7.28.3",
     "@babel/types": "^7.28.2",
     "@types/babel__core": "^7.20.5",
+    "debug": "^4.4.3",
     "parallel-park": "^0.2.2",
     "recast": "^0.23.11",
     "tinyglobby": "^0.2.15"

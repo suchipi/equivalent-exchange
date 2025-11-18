@@ -2,6 +2,10 @@ import fsp from "node:fs/promises";
 import tinyglobby = require("tinyglobby");
 import { runJobs } from "parallel-park";
 import { Result } from "./ee-types";
+import makeDebug from "debug";
+
+const debug = makeDebug("equivalent-exchange:map-files");
+const debugContent = makeDebug("equivalent-exchange:map-files:content");
 
 export type FileStatus =
   | { status: "unchanged" }
@@ -60,6 +64,7 @@ export async function fromGlob(
     [transform] = maybeOptionsAndTransform;
     globOptions = undefined;
   }
+  debug("Globbing...", { patterns, globOptions });
   const paths = await tinyglobby.glob(patterns, globOptions);
   return fromPaths(paths, transform);
 }
@@ -87,11 +92,17 @@ export async function fromPaths(
   transform: TransformFunction,
 ): Promise<FileResults> {
   const results: FileResults = new Map();
+  debug(`Processing ${filePaths.length} files, up to 8 at a time`);
   await runJobs(filePaths, async (filePath) => {
     try {
+      debug("Reading:", filePath);
       const content = await fsp.readFile(filePath, "utf-8");
+      debugContent(filePath, "content before:\n", content);
+      debug("Transforming:", filePath);
       const result = await transform(content, filePath);
+      debug("Done Transforming:", filePath);
       if (result === undefined || result === content) {
+        debug("Unchanged:", filePath);
         results.set(filePath, { status: "unchanged" });
       } else {
         let newContent: string;
@@ -105,11 +116,14 @@ export async function fromPaths(
         ) {
           newContent = result.code;
         } else {
+          debug("Transform returned invalid value:", { filePath, result });
           throw new Error(
             `Transform returned invalid value: ${String(result)}`,
           );
         }
 
+        debugContent(filePath, "content after:\n", newContent);
+        debug("Writing:", filePath);
         await fsp.writeFile(filePath, newContent);
         results.set(filePath, {
           status: "changed",
@@ -118,11 +132,13 @@ export async function fromPaths(
         });
       }
     } catch (err: any) {
+      debug("Errored:", { filePath, err });
       results.set(filePath, {
         status: "errored",
         error: err,
       });
     }
   });
+  debug(`Done processing ${filePaths.length} files.`);
   return results;
 }

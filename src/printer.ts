@@ -2,6 +2,9 @@ import * as babelGenerator from "@babel/generator";
 import * as types from "./types-ns";
 import * as recast from "recast";
 import { Result, Options } from "./ee-types";
+import makeDebug from "debug";
+
+const debug = makeDebug("equivalent-exchange:printer");
 
 /**
  * Converts an AST back into a code string.
@@ -11,6 +14,7 @@ import { Result, Options } from "./ee-types";
  * The options parameter is the same type as the options parameter for `transmute`.
  */
 export function print(ast: types.Node, options?: Options): Result {
+  debug("print", { ast, options });
   if (options) {
     const maybeWrongOpts = options as any;
     if ("printMethod" in maybeWrongOpts) {
@@ -21,6 +25,8 @@ export function print(ast: types.Node, options?: Options): Result {
   }
 
   const printMethod = options?.printOptions?.printMethod || "recast.print";
+
+  debug("printing using", printMethod);
 
   switch (printMethod) {
     case "recast.print":
@@ -33,9 +39,11 @@ export function print(ast: types.Node, options?: Options): Result {
           sourceFileName: options.fileName,
           sourceMapName: options.sourceMapFileName,
         });
+        debug("returning with sourcemap maybe");
         return { code, map: map || null };
       } else {
         const { code } = printFunction.call(recast, ast);
+        debug("returning without sourcemap");
         return { code, map: null };
       }
     }
@@ -47,8 +55,10 @@ export function print(ast: types.Node, options?: Options): Result {
       });
 
       if (options?.fileName && options.sourceMapFileName) {
+        debug("returning with sourcemap maybe");
         return { code, map: map || null };
       } else {
+        debug("returning without sourcemap");
         return { code, map: null };
       }
     }

@@ -6,6 +6,9 @@ import { parse, Parse } from "./parser";
 import { print } from "./printer";
 import { clone, hasShape } from "./utils";
 import * as mapFiles from "./map-files";
+import makeDebug from "debug";
+
+const debugTransmute = makeDebug("equivalent-exchange:transmute");
 
 /**
  * The transmute function; star of the library. See {@link Transmute}.
@@ -24,18 +27,23 @@ export const transmute: Transmute = (
     transform = args[2];
   }
 
+  debugTransmute("Parsing...");
   const ast = parse(code, options);
 
+  debugTransmute("Running transform...");
   const result = transform(ast);
   if (
     typeof result === "object" &&
     result != null &&
     typeof result.then === "function"
   ) {
+    debugTransmute("Transform returned Promise. Awaiting Promise...");
     return result.then(() => {
+      debugTransmute("Printing...");
       return print(ast, options);
     });
   } else {
+    debugTransmute("Printing...");
     return print(ast, options);
   }
 };
