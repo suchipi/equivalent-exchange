@@ -8,5 +8,6 @@
   "Options": "/api/ee-types.md#options-exported-type",
   "Result": "/api/ee-types.md#result-exported-type",
   "clone": "/api/utils.md#clone-exported-function",
-  "hasShape": "/api/utils.md#hasshape-exported-function"
+  "hasShape": "/api/utils.md#hasshape-exported-function",
+  "mapFiles": "/api/map-files.md#mapfiles-exported-object"
 }

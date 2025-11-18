@@ -176,3 +176,11 @@ Deep object property comparison checker utility function. See
 ```ts
 export { hasShape };
 ```
+
+# mapFiles (exported binding)
+
+Bulk file content transform utility functions. See [mapFiles](/api/map-files.md#mapfiles-exported-object).
+
+```ts
+export { mapFiles };
+```

@@ -5,6 +5,7 @@ import { AST, Options, Result } from "./ee-types";
 import { parse, Parse } from "./parser";
 import { print } from "./printer";
 import { clone, hasShape } from "./utils";
+import { mapFiles } from "./map-files";
 
 /**
  * The transmute function; star of the library. See {@link Transmute}.
@@ -157,4 +158,9 @@ export {
    * {@link hasShape}.
    */
   hasShape,
+
+  /**
+   * Bulk file content transform utility functions. See {@link mapFiles}.
+   */
+  mapFiles,
 };

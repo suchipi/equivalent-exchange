@@ -41,7 +41,9 @@
     "@babel/traverse": "^7.28.3",
     "@babel/types": "^7.28.2",
     "@types/babel__core": "^7.20.5",
-    "recast": "^0.23.11"
+    "parallel-park": "^0.2.2",
+    "recast": "^0.23.11",
+    "tinyglobby": "^0.2.15"
   },
   "prettier": {}
 }
