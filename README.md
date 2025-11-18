@@ -57,6 +57,36 @@ const result = transmute(someJs, (ast) => {
 console.log(result.code); // "console.log('bye!', 'bye again!');"
 ```
 
+To transform files in bulk, use the "mapFiles" API:
+
+```ts
+import { transmute, traverse, types, mapFiles } from "equivalent-exchange";
+
+const results = await mapFiles.fromGlob("src/*.ts", (content, path) => {
+  if (path === "src/build-docs.ts") {
+    // Skip this file
+    return;
+  }
+
+  return transmute(content, (ast) => {
+    // Walk the tree...
+    traverse(ast, {
+      // And for every StringLiteral node we find...
+      StringLiteral(path) {
+        const { node } = path;
+        // If it starts with 'hi'...
+        if (node.value.startsWith("hi")) {
+          const newValue = node.value.replace(/^hi/, "bye");
+          const newNode = types.stringLiteral(newValue);
+          // Change 'hi' to 'bye'
+          path.replaceWith(newNode);
+        }
+      },
+    });
+  });
+});
+```
+
 ## API Documentation
 
 See [api/index.md](/api/index.md).
