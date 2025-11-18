@@ -22,31 +22,22 @@ type FileStatus =
 type FileResults = Map<string, FileStatus>;
 ```
 
-# mapFiles (exported object)
-
-Helper functions which apply a transform function to a set of files.
+# TransformFunction (exported type)
 
 ```ts
-const mapFiles: {
-  fromGlob(
-    patterns: string | Array<string>,
-    globOptions: tinyglobby.GlobOptions | undefined,
-    transform: (
-      fileContent: string,
-      filePath: string,
-    ) => string | void | Promise<string | void>,
-  ): Promise<FileResults>;
-  fromPaths(
-    filePaths: Array<string>,
-    transform: (
-      fileContent: string,
-      filePath: string,
-    ) => string | void | Promise<string | void>,
-  ): Promise<FileResults>;
-};
+type TransformFunction = (
+  fileContent: string,
+  filePath: string,
+) => TransformReturn;
 ```
 
-## mapFiles.fromGlob (method)
+# TransformReturn (exported type)
+
+```ts
+type TransformReturn = string | void | Result | Promise<string | void | Result>;
+```
+
+# fromGlob (exported function)
 
 Helper function which applies a transform function to a set of files,
 specified via glob patterns.
@@ -66,10 +57,23 @@ whose value is one of the following:
 - `{ status: "errored", error: Error }`, which indicates that the file could not be processed due to an error.
 
 ```ts
-fromGlob(patterns: string | Array<string>, globOptions: tinyglobby.GlobOptions | undefined, transform: (fileContent: string, filePath: string) => string | void | Promise<string | void>): Promise<FileResults>;
+declare function fromGlob(
+  patterns: string | Array<string>,
+  transform: TransformFunction,
+): Promise<FileResults>;
 ```
 
-## mapFiles.fromPaths (method)
+# fromGlob (exported function)
+
+```ts
+declare function fromGlob(
+  patterns: string | Array<string>,
+  globOptions: tinyglobby.GlobOptions | undefined,
+  transform: TransformFunction,
+): Promise<FileResults>;
+```
+
+# fromPaths (exported function)
 
 Helper function which applies a transform function to a set of files,
 specified via an array of filepath strings.
@@ -89,5 +93,8 @@ whose value is one of the following:
 - `{ status: "errored", error: Error }`, which indicates that the file could not be processed due to an error.
 
 ```ts
-fromPaths(filePaths: Array<string>, transform: (fileContent: string, filePath: string) => string | void | Promise<string | void>): Promise<FileResults>;
+declare function fromPaths(
+  filePaths: Array<string>,
+  transform: TransformFunction,
+): Promise<FileResults>;
 ```

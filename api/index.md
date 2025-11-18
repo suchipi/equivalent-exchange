@@ -179,7 +179,7 @@ export { hasShape };
 
 # mapFiles (exported binding)
 
-Bulk file content transform utility functions. See [mapFiles](/api/map-files.md#mapfiles-exported-object).
+Bulk file content transform utility functions. See [mapFiles.fromPaths](/api/map-files.md#frompaths-exported-function).
 
 ```ts
 export { mapFiles };
