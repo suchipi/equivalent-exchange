@@ -6,8 +6,10 @@
     "lib": ["es2020", "dom"],
     "target": "es2018",
     "module": "CommonJS",
+    "rootDir": "./src",
     "outDir": "./dist",
     "declaration": true,
+    "skipLibCheck": true,
 
     "strict": true,
     "noImplicitAny": false,
@@ -20,9 +22,8 @@
     "noUnusedParameters": false,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "downlevelIteration": true,
 
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "esModuleInterop": true,
     "resolveJsonModule": true
   }

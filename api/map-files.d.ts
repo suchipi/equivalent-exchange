@@ -19,10 +19,7 @@ export type TransformFunction = (
   filePath: string,
 ) => TransformReturn;
 export type TransformReturn =
-  | string
-  | void
-  | Result
-  | Promise<string | void | Result>;
+  string | void | Result | Promise<string | void | Result>;
 /**
  * Helper function which applies a transform function to a set of files,
  * specified via glob patterns.

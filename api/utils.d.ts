@@ -7,13 +7,7 @@
 export declare function clone<T extends Clonable>(input: T): T;
 /** This type is used in the definition of `clone`, but is not exported. */
 type Clonable =
-  | {}
-  | number
-  | string
-  | null
-  | undefined
-  | boolean
-  | Array<Clonable>;
+  {} | number | string | null | undefined | boolean | Array<Clonable>;
 /**
  * Utility function which checks whether `input` is a structural subset of
  * `shape`.

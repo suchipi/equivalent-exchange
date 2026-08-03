@@ -57,7 +57,7 @@ whose value is one of the following:
 - `{ status: "errored", error: Error }`, which indicates that the file could not be processed due to an error.
 
 ```ts
-declare function fromGlob(
+export declare function fromGlob(
   patterns: string | Array<string>,
   transform: TransformFunction,
 ): Promise<FileResults>;
@@ -66,7 +66,7 @@ declare function fromGlob(
 # fromGlob (exported function)
 
 ```ts
-declare function fromGlob(
+export declare function fromGlob(
   patterns: string | Array<string>,
   globOptions: tinyglobby.GlobOptions | undefined,
   transform: TransformFunction,
@@ -93,7 +93,7 @@ whose value is one of the following:
 - `{ status: "errored", error: Error }`, which indicates that the file could not be processed due to an error.
 
 ```ts
-declare function fromPaths(
+export declare function fromPaths(
   filePaths: Array<string>,
   transform: TransformFunction,
 ): Promise<FileResults>;
