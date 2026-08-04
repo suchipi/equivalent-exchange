@@ -2,6 +2,8 @@
 
 Suchipi's flexible JS/TS codemodding/refactoring toolkit, powered by [Babel](https://babeljs.io/) and [Recast](https://www.npmjs.com/package/recast).
 
+> equivalent-exchange@8 uses Babel 8. If you need Babel 7, use equivalent-exchange@7.
+
 ## Features
 
 - Can parse code using modern ES20XX syntax, as well as JSX/TSX and TypeScript/Flow syntax.
