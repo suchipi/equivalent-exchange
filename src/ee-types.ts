@@ -55,8 +55,11 @@ export type Options = {
      * Which syntax proposal to use for the pipeline operator.
      *
      * Defaults to "hack".
+     *
+     * NOTE: The "minimal" and "smart" proposals were removed in Babel 8. If you
+     * need them, use equivalent-exchange@7, which uses Babel 7.
      */
-    pipelineSyntax?: "minimal" | "fsharp" | "hack" | "smart" | "none";
+    pipelineSyntax?: "fsharp" | "hack" | "none";
 
     /**
      * Which topic token to use when using the "hack" syntax proposal for the

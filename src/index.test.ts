@@ -2054,11 +2054,8 @@ test("print function (source maps, @babel/generator)", () => {
       "map": {
         "file": undefined,
         "ignoreList": [],
-        "mappings": "AAAAA,OAAO,CAAAC,GAAI,CAAC,CAAC,CAAC",
-        "names": [
-          "console",
-          "pog",
-        ],
+        "mappings": "AAAA,OAAO,IAAI,CAAC,CAAC,CAAC",
+        "names": [],
         "sourceRoot": undefined,
         "sources": [
           "myfile.js",

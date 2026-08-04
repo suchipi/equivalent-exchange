@@ -20,7 +20,7 @@ type Options = {
   parseOptions?: {
     typeSyntax?: "typescript" | "typescript-dts" | "flow";
     decoratorSyntax?: "new" | "legacy";
-    pipelineSyntax?: "minimal" | "fsharp" | "hack" | "smart" | "none";
+    pipelineSyntax?: "fsharp" | "hack" | "none";
     hackPipelineTopicToken?: "^^" | "@@" | "^" | "%" | "#";
     jsxEnabled?: boolean;
     v8Intrinsic?: boolean;
@@ -73,7 +73,7 @@ Options that control how code strings will be converted into ASTs.
 parseOptions?: {
   typeSyntax?: "typescript" | "typescript-dts" | "flow";
   decoratorSyntax?: "new" | "legacy";
-  pipelineSyntax?: "minimal" | "fsharp" | "hack" | "smart" | "none";
+  pipelineSyntax?: "fsharp" | "hack" | "none";
   hackPipelineTopicToken?: "^^" | "@@" | "^" | "%" | "#";
   jsxEnabled?: boolean;
   v8Intrinsic?: boolean;
@@ -109,8 +109,11 @@ Which syntax proposal to use for the pipeline operator.
 
 Defaults to "hack".
 
+NOTE: The "minimal" and "smart" proposals were removed in Babel 8. If you
+need them, use equivalent-exchange@7, which uses Babel 7.
+
 ```ts
-pipelineSyntax?: "minimal" | "fsharp" | "hack" | "smart" | "none";
+pipelineSyntax?: "fsharp" | "hack" | "none";
 ```
 
 ### Options.parseOptions.hackPipelineTopicToken (property)

@@ -68,36 +68,22 @@ export const parse: Parse = (source: string, options?: Options): any => {
   const v8Intrinsic = options?.parseOptions?.v8Intrinsic ?? false;
   const placeholders = options?.parseOptions?.placeholders ?? false;
 
-  const plugins: babelParser.ParserOptions["plugins"] = [
+  const plugins: NonNullable<babelParser.ParserOptions["plugins"]> = [
     "asyncDoExpressions",
-    "asyncGenerators",
-    "bigInt",
-    "classPrivateMethods",
-    "classPrivateProperties",
-    "classProperties",
-    "classStaticBlock",
-    "decimal",
-
+    "decoratorAutoAccessors",
+    "deferredImportEvaluation",
+    "destructuringPrivate",
     "doExpressions",
-    "dynamicImport",
     "exportDefaultFrom",
-    "exportNamespaceFrom",
     "functionBind",
     "functionSent",
-    "importAssertions",
     "importMeta",
-    "logicalAssignment",
     "moduleBlocks",
-    "moduleStringNames",
-    "nullishCoalescingOperator",
-    "numericSeparator",
-    "objectRestSpread",
-    "optionalCatchBinding",
-    "optionalChaining",
-    "partialApplication",
-    "privateIn",
+    "sourcePhaseImports",
     "throwExpressions",
-    "topLevelAwait",
+    ["discardBinding", { syntaxType: "void" }],
+    ["partialApplication", { version: "2018-07" }],
+    ["optionalChainingAssign", { version: "2023-07" }],
   ];
 
   if (typeSyntax === "flow") {
@@ -143,16 +129,24 @@ export const parse: Parse = (source: string, options?: Options): any => {
   }
 
   if (pipelineSyntax !== "none") {
+    // We (and Babel 7) used to accept these but no longer do, so throw an error
+    // to help with migration.
+    const pipelineSyntaxAsString: string = pipelineSyntax;
+    if (
+      pipelineSyntaxAsString === "minimal" ||
+      pipelineSyntaxAsString === "smart"
+    ) {
+      throw new Error(
+        `The '${pipelineSyntaxAsString}' pipeline operator proposal was removed in Babel 8, so the 'pipelineSyntax' option no longer supports it. Use 'hack' (the default) or 'fsharp' instead.`,
+      );
+    }
+
     plugins.push([
       "pipelineOperator",
       {
         proposal: pipelineSyntax,
         ...(pipelineSyntax === "hack"
-          ? {
-              // Babel's type disallows "^", but babel's runtime
-              // seems to allow it, so ignore this error.
-              topicToken: hackPipelineTopicToken as any,
-            }
+          ? { topicToken: hackPipelineTopicToken }
           : {}),
       },
     ]);
@@ -172,6 +166,8 @@ export const parse: Parse = (source: string, options?: Options): any => {
       allowReturnOutsideFunction: true,
       allowSuperOutsideMethod: true,
       allowUndeclaredExports: true,
+      allowNewTargetOutsideFunction: true,
+      allowYieldOutsideFunction: true,
       tokens: true,
       plugins,
     });
